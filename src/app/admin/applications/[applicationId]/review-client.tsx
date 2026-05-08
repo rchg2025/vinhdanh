@@ -58,6 +58,7 @@ export default function ApplicationReviewClient({ application, template }: { app
 
   const [bgDataUrl, setBgDataUrl] = useState<string>("");
   const [fieldDataUrls, setFieldDataUrls] = useState<Record<string, string>>({});
+  const [portraitDataUrl, setPortraitDataUrl] = useState<string>("");
   const [templateLoading, setTemplateLoading] = useState(false);
 
   const templateFields: TemplateField[] =
@@ -71,14 +72,24 @@ export default function ApplicationReviewClient({ application, template }: { app
       .then(setBgDataUrl)
       .catch((e) => console.error("bg load failed", e));
 
-    const imageFields = templateFields.filter((f) => f.type === "image" && f.value);
+    // Pre-load static image fields (logo, signature, etc.)
+    const imageFields = templateFields.filter(
+      (f) => f.type === "image" && f.value && f.id.split("_")[0] !== "portrait"
+    );
     const fieldPromises = imageFields.map((f) =>
       toDataUrl(f.value)
         .then((dataUrl) => setFieldDataUrls((prev) => ({ ...prev, [f.id]: dataUrl })))
         .catch((e) => console.error(`field ${f.id} load failed`, e))
     );
 
-    Promise.all([bgPromise, ...fieldPromises]).finally(() => setTemplateLoading(false));
+    // Pre-load the student's portrait from the application
+    const portraitPromise = application.portraitImage
+      ? toDataUrl(application.portraitImage)
+          .then(setPortraitDataUrl)
+          .catch((e) => console.error("portrait load failed", e))
+      : Promise.resolve();
+
+    Promise.all([bgPromise, portraitPromise, ...fieldPromises]).finally(() => setTemplateLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [template?.imageUrl]);
 
@@ -232,7 +243,7 @@ export default function ApplicationReviewClient({ application, template }: { app
                       {field.type === "image" && (() => {
                         const baseId = field.id.split("_")[0];
                         const src = baseId === "portrait"
-                          ? (application.portraitImage ? getDisplayUrl(application.portraitImage) : null)
+                          ? (portraitDataUrl || (application.portraitImage ? getDisplayUrl(application.portraitImage) : null))
                           : (fieldDataUrls[field.id] || (field.value ? getDisplayUrl(field.value) : null));
                         if (!src) return null;
                         return (
@@ -294,7 +305,7 @@ export default function ApplicationReviewClient({ application, template }: { app
                   {!hasPortrait && application.portraitImage && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={getDisplayUrl(application.portraitImage)}
+                      src={portraitDataUrl || getDisplayUrl(application.portraitImage)}
                       alt="Ảnh đại diện"
                       style={{
                         position: "absolute",
