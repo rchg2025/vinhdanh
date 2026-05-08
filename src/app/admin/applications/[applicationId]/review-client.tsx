@@ -58,7 +58,6 @@ export default function ApplicationReviewClient({ application, template }: { app
   const [showCertModal, setShowCertModal] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
-  const modalCertRef = useRef<HTMLDivElement>(null);
 
   const [bgDataUrl, setBgDataUrl] = useState<string>("");
   const [fieldDataUrls, setFieldDataUrls] = useState<Record<string, string>>({});
@@ -98,11 +97,10 @@ export default function ApplicationReviewClient({ application, template }: { app
   }, [template?.imageUrl]);
 
   const handleDownloadPng = async () => {
-    const targetRef = modalCertRef.current || certRef.current;
-    if (!targetRef) return;
+    if (!certRef.current) return;
     setDownloading(true);
     try {
-      const dataUrl = await htmlToImage.toPng(targetRef, { quality: 1, pixelRatio: 2 });
+      const dataUrl = await htmlToImage.toPng(certRef.current, { quality: 1, pixelRatio: 2 });
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = `GiayKhen_${application.user.studentId || application.user.name}.png`;
@@ -407,17 +405,13 @@ export default function ApplicationReviewClient({ application, template }: { app
               <div className="p-6 overflow-auto flex justify-center">
                 {template ? (
                   <>
-                    <style dangerouslySetInnerHTML={{
-                      __html: `@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap');`,
-                    }} />
-                    <div style={{ transform: `scale(${800 / CANVAS_W})`, transformOrigin: "top left", width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, flexShrink: 0 }}>
+                    <div style={{ transform: `scale(${800 / CANVAS_W})`, transformOrigin: "top left", width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, flexShrink: 0, pointerEvents: "none" }}>
                       <div
-                        ref={modalCertRef}
                         style={{ width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, position: "relative", backgroundColor: "#fff", overflow: "hidden" }}
                       >
                         {bgDataUrl && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={bgDataUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                          <img src={bgDataUrl} alt="" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                         )}
                         {templateFields.map((field) => (
                           <div

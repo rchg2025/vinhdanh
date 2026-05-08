@@ -6,13 +6,10 @@ import ApplicationReviewClient from "./review-client";
 function getDriveDisplayUrl(url: string): string {
   if (!url) return "";
   const viewMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
-  if (viewMatch?.[1]) return `https://drive.google.com/thumbnail?id=${viewMatch[1]}&sz=w800`;
+  if (viewMatch?.[1]) return `/api/proxy-image?url=${encodeURIComponent(`https://drive.google.com/thumbnail?id=${viewMatch[1]}&sz=w800`)}`;
   const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if (ucMatch?.[1] && url.includes("drive.google.com"))
-    return `https://drive.google.com/thumbnail?id=${ucMatch[1]}&sz=w800`;
-  return url;
-}
-
+    return `/api/proxy-image?url=${encodeURIComponent(`https://drive.google.com/thumbnail?id=${ucMatch[1]}&sz=w800`)}`;
 export default async function ApplicationDetailsPage({ params }: { params: Promise<{ applicationId: string }> }) {
   const { applicationId } = await params;
   const application = await prisma.application.findUnique({
