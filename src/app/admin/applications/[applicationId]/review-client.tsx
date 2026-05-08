@@ -92,6 +92,7 @@ export default function ApplicationReviewClient({ application, template }: { app
   // Check if template config already has these dynamic fields
   const hasHonoree = templateFields.some((f) => f.id.split("_")[0] === "honoree");
   const hasAchievement = templateFields.some((f) => f.id.split("_")[0] === "achievement");
+  const hasPortrait = templateFields.some((f) => f.id.split("_")[0] === "portrait");
 
   const handleUpdateStatus = async (status: string) => {
     setLoading(true);
@@ -228,14 +229,21 @@ export default function ApplicationReviewClient({ application, template }: { app
                     >
                       {field.type === "text" && getFieldValue(field)}
 
-                      {field.type === "image" && (fieldDataUrls[field.id] || field.value) && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={fieldDataUrls[field.id] || getDisplayUrl(field.value)}
-                          alt={field.label}
-                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                        />
-                      )}
+                      {field.type === "image" && (() => {
+                        const baseId = field.id.split("_")[0];
+                        const src = baseId === "portrait"
+                          ? (application.portraitImage ? getDisplayUrl(application.portraitImage) : null)
+                          : (fieldDataUrls[field.id] || (field.value ? getDisplayUrl(field.value) : null));
+                        if (!src) return null;
+                        return (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={src}
+                            alt={field.label}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        );
+                      })()}
                     </div>
                   ))}
 
@@ -280,6 +288,26 @@ export default function ApplicationReviewClient({ application, template }: { app
                     >
                       {application.campaign.title}
                     </div>
+                  )}
+
+                  {/* Fallback: show portrait if template has no portrait field */}
+                  {!hasPortrait && application.portraitImage && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={getDisplayUrl(application.portraitImage)}
+                      alt="Ảnh đại diện"
+                      style={{
+                        position: "absolute",
+                        left: "80px",
+                        top: "350px",
+                        width: "100px",
+                        height: "130px",
+                        objectFit: "cover",
+                        border: "4px solid white",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                        zIndex: 2,
+                      }}
+                    />
                   )}
                 </div>
               </div>

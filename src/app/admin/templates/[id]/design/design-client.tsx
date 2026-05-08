@@ -43,6 +43,7 @@ const AVAILABLE_FIELDS = [
   { id: "decisionNumber", label: "Số quyết định", type: "text", defaultVal: "Số: 01/QĐ" },
   { id: "location", label: "Địa điểm", type: "text", defaultVal: "Hà Nội" },
   { id: "signingDate", label: "Thời gian ký", type: "text", defaultVal: "ngày 01 tháng 01 năm 2025" },
+  { id: "portrait", label: "Ảnh đại diện SV", type: "image", defaultVal: "" },
   { id: "signature", label: "Chữ ký (Ảnh)", type: "image", defaultVal: "" },
   { id: "logo", label: "Logo cơ quan", type: "image", defaultVal: "" },
   { id: "line", label: "Đường kẻ (Line)", type: "line", defaultVal: "" },
