@@ -3,6 +3,16 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import ApplicationReviewClient from "./review-client";
 
+function getDriveDisplayUrl(url: string): string {
+  if (!url) return "";
+  const viewMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+  if (viewMatch?.[1]) return `https://drive.google.com/thumbnail?id=${viewMatch[1]}&sz=w800`;
+  const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (ucMatch?.[1] && url.includes("drive.google.com"))
+    return `https://drive.google.com/thumbnail?id=${ucMatch[1]}&sz=w800`;
+  return url;
+}
+
 export default async function ApplicationDetailsPage({ params }: { params: Promise<{ applicationId: string }> }) {
   const { applicationId } = await params;
   const application = await prisma.application.findUnique({
@@ -32,6 +42,16 @@ export default async function ApplicationDetailsPage({ params }: { params: Promi
             <CardTitle>Thông tin Sinh viên</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
+            {application.portraitImage && (
+              <div className="flex justify-center mb-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={getDriveDisplayUrl(application.portraitImage)}
+                  alt="Ảnh đại diện"
+                  className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-md"
+                />
+              </div>
+            )}
             <p><strong>Họ tên:</strong> {application.user.name}</p>
             <p><strong>Mã SV:</strong> {application.user.studentId}</p>
             <p><strong>Email:</strong> {application.user.email}</p>
@@ -52,14 +72,30 @@ export default async function ApplicationDetailsPage({ params }: { params: Promi
             
             {application.evidenceFiles && (application.evidenceFiles as string[]).length > 0 && (
               <div>
-                <strong>Minh chứng:</strong>
-                <ul className="list-disc pl-5 mt-1">
+                <strong>File minh chứng:</strong>
+                <div className="mt-2 space-y-3">
                   {(application.evidenceFiles as string[]).map((url, i) => (
-                    <li key={i}>
-                      <a href={url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Xem File Minh Chứng {i+1}</a>
-                    </li>
+                    <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={getDriveDisplayUrl(url)}
+                        alt={`Minh chứng ${i + 1}`}
+                        className="w-full max-h-64 object-contain bg-gray-50"
+                        onError={undefined}
+                      />
+                      <div className="px-3 py-2 bg-white border-t border-gray-100">
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          ↗ Mở file minh chứng {i + 1} (Drive)
+                        </a>
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
           </CardContent>
