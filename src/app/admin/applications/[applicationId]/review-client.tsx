@@ -89,6 +89,10 @@ export default function ApplicationReviewClient({ application, template }: { app
     return field.value;
   };
 
+  // Check if template config already has these dynamic fields
+  const hasHonoree = templateFields.some((f) => f.id.split("_")[0] === "honoree");
+  const hasAchievement = templateFields.some((f) => f.id.split("_")[0] === "achievement");
+
   const handleUpdateStatus = async (status: string) => {
     setLoading(true);
     let certificateUrl = application.certificateUrl;
@@ -234,6 +238,49 @@ export default function ApplicationReviewClient({ application, template }: { app
                       )}
                     </div>
                   ))}
+
+                  {/* Fallback: always render student name if template has no honoree field */}
+                  {!hasHonoree && application.user.name && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "52%",
+                        transform: "translate(-50%, -50%)",
+                        fontSize: "40px",
+                        fontWeight: "bold",
+                        color: "#c0392b",
+                        fontFamily: "Roboto",
+                        textAlign: "center",
+                        whiteSpace: "nowrap",
+                        zIndex: 2,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {application.user.name}
+                    </div>
+                  )}
+
+                  {/* Fallback: always render campaign title if template has no achievement field */}
+                  {!hasAchievement && application.campaign.title && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "63%",
+                        transform: "translate(-50%, -50%)",
+                        fontSize: "24px",
+                        fontStyle: "italic",
+                        color: "#2c3e50",
+                        fontFamily: "Roboto",
+                        textAlign: "center",
+                        whiteSpace: "nowrap",
+                        zIndex: 2,
+                      }}
+                    >
+                      {application.campaign.title}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
