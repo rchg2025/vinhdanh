@@ -85,6 +85,7 @@ export default function ApplicationReviewClient({ application, template }: { app
   const getFieldValue = (field: TemplateField): string => {
     const baseId = field.id.split("_")[0];
     if (baseId === "honoree") return application.user.name || field.value;
+    if (baseId === "achievement") return application.campaign.title || field.value;
     return field.value;
   };
 
