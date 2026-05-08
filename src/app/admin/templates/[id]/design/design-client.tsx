@@ -21,6 +21,7 @@ type TemplateField = {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  shape?: "rectangle" | "circle"; // for image fields (portrait)
 };
 
 const GOOGLE_FONTS = [
@@ -94,7 +95,8 @@ export default function DesignClient({ template }: { template: any }) {
       fontFamily: "Roboto",
       bold: fieldDef.id === "honoree" || fieldDef.id === "signerName",
       width: fieldDef.type === "image" ? 150 : fieldDef.type === "line" ? 200 : undefined,
-      height: fieldDef.type === "image" ? 80 : fieldDef.type === "line" ? 2 : undefined,
+      height: fieldDef.type === "image" ? 150 : fieldDef.type === "line" ? 2 : undefined,
+      shape: fieldDef.type === "image" ? "rectangle" : undefined,
     };
     setFields([...fields, newField]);
     setSelectedFieldId(newField.id);
@@ -327,15 +329,54 @@ export default function DesignClient({ template }: { template: any }) {
                 )}
 
                 {selectedField.type === "image" && (
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Tải ảnh lên (Drive)</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e, selectedField.id)}
-                      className="w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
-                    />
-                    <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="space-y-3">
+                    {selectedField.id.split("_")[0] !== "portrait" && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Tải ảnh lên (Drive)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, selectedField.id)}
+                          className="w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                        />
+                      </div>
+                    )}
+
+                    {selectedField.id.split("_")[0] === "portrait" && (
+                      <div className="p-2 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-700">
+                        Ảnh sẽ tự động lấy từ hồ sơ sinh viên nộp lên.
+                      </div>
+                    )}
+
+                    {selectedField.id.split("_")[0] === "portrait" && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Hình dạng</label>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleUpdateField(selectedField.id, { shape: "rectangle" })}
+                            className={`flex-1 py-1.5 text-xs rounded-md border font-medium transition-colors ${
+                              (selectedField.shape || "rectangle") === "rectangle"
+                                ? "bg-indigo-600 text-white border-indigo-600"
+                                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            ▭ Chữ nhật
+                          </button>
+                          <button
+                            onClick={() => handleUpdateField(selectedField.id, { shape: "circle" })}
+                            className={`flex-1 py-1.5 text-xs rounded-md border font-medium transition-colors ${
+                              selectedField.shape === "circle"
+                                ? "bg-indigo-600 text-white border-indigo-600"
+                                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            ● Tròn
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Chiều rộng (px)</label>
                         <input
@@ -349,7 +390,7 @@ export default function DesignClient({ template }: { template: any }) {
                         <label className="block text-xs font-medium text-gray-700 mb-1">Chiều cao (px)</label>
                         <input
                           type="number"
-                          value={selectedField.height || 80}
+                          value={selectedField.height || 150}
                           onChange={(e) => handleUpdateField(selectedField.id, { height: Number(e.target.value) })}
                           className="w-full px-3 py-1.5 text-sm rounded-md border border-gray-200 focus:outline-none"
                         />
@@ -478,15 +519,29 @@ export default function DesignClient({ template }: { template: any }) {
             >
               {field.type === "text" && field.value}
               
-              {field.type === "image" && (
-                field.value ? (
-                  <img src={getDisplayUrl(field.value)} alt="Signature" className="w-full h-full object-contain pointer-events-none" />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm border border-gray-200">
+              {field.type === "image" && (() => {
+                const isPortrait = field.id.split("_")[0] === "portrait";
+                const isCircle = field.shape === "circle";
+                const borderRadius = isCircle ? "50%" : undefined;
+                const overflow = isCircle ? "hidden" : undefined;
+                if (field.value && !isPortrait) {
+                  return (
+                    <img
+                      src={getDisplayUrl(field.value)}
+                      alt={field.label}
+                      style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius, overflow, pointerEvents: "none" }}
+                    />
+                  );
+                }
+                return (
+                  <div
+                    style={{ width: "100%", height: "100%", borderRadius, overflow: "hidden" }}
+                    className="bg-gray-100 flex items-center justify-center text-gray-400 text-xs border border-dashed border-gray-300"
+                  >
                     {field.label}
                   </div>
-                )
-              )}
+                );
+              })()}
               
               {/* Line type doesn't need children, it's just a styled div with background color */}
             </div>

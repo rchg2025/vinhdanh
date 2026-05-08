@@ -24,6 +24,7 @@ type TemplateField = {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  shape?: "rectangle" | "circle"; // for portrait image
 };
 
 function getDisplayUrl(url: string): string {
@@ -246,12 +247,18 @@ export default function ApplicationReviewClient({ application, template }: { app
                           ? (portraitDataUrl || (application.portraitImage ? getDisplayUrl(application.portraitImage) : null))
                           : (fieldDataUrls[field.id] || (field.value ? getDisplayUrl(field.value) : null));
                         if (!src) return null;
+                        const isCircle = field.shape === "circle";
                         return (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={src}
                             alt={field.label}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              borderRadius: isCircle ? "50%" : undefined,
+                            }}
                           />
                         );
                       })()}
