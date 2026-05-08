@@ -1,0 +1,33 @@
+import type { Metadata } from "next";
+import { Nunito } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
+
+const nunito = Nunito({
+  variable: "--font-sans",
+  subsets: ["latin", "vietnamese"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+export const metadata: Metadata = {
+  title: "Vinh Danh Trực Tuyến - Bách Khoa Nam Sài Gòn",
+  description: "Hệ thống Vinh danh & Cấp giấy khen tự động dành cho sinh viên Cao đẳng Bách Khoa Nam Sài Gòn.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="vi"
+      className={`${nunito.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <Toaster richColors position="top-right" />
+      </body>
+    </html>
+  );
+}
