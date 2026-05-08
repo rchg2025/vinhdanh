@@ -12,6 +12,13 @@ export default async function ApplicationDetailsPage({ params }: { params: Promi
 
   if (!application) return notFound();
 
+  // Look up the CertificateTemplate whose imageUrl matches the campaign's templateUrl
+  const template = application.campaign.templateUrl
+    ? await prisma.certificateTemplate.findFirst({
+        where: { imageUrl: application.campaign.templateUrl },
+      })
+    : null;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = application.data as any;
 
@@ -59,7 +66,7 @@ export default async function ApplicationDetailsPage({ params }: { params: Promi
         </Card>
       </div>
 
-      <ApplicationReviewClient application={application} />
+      <ApplicationReviewClient application={application} template={template} />
     </div>
   );
 }

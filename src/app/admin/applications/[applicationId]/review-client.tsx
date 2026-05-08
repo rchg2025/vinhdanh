@@ -8,6 +8,24 @@ import { toast } from "sonner";
 import * as htmlToImage from "html-to-image";
 import { Download } from "lucide-react";
 
+type TemplateField = {
+  id: string;
+  type: "text" | "image" | "line";
+  label: string;
+  value: string;
+  x: number;
+  y: number;
+  fontSize?: number;
+  color?: string;
+  width?: number;
+  height?: number;
+  align?: "left" | "center" | "right";
+  fontFamily?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+};
+
 function getDisplayUrl(url: string): string {
   if (!url) return "";
   const viewMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
@@ -18,51 +36,57 @@ function getDisplayUrl(url: string): string {
   return url;
 }
 
+async function toDataUrl(url: string): Promise<string> {
+  const displayUrl = getDisplayUrl(url);
+  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(displayUrl)}`;
+  const r = await fetch(proxyUrl);
+  if (!r.ok) throw new Error("Failed to proxy image");
+  const blob = await r.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function ApplicationReviewClient({ application }: { application: any }) {
+export default function ApplicationReviewClient({ application, template }: { application: any; template: any | null }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
-  const [templateDataUrl, setTemplateDataUrl] = useState<string>("");
+
+  const [bgDataUrl, setBgDataUrl] = useState<string>("");
+  const [fieldDataUrls, setFieldDataUrls] = useState<Record<string, string>>({});
   const [templateLoading, setTemplateLoading] = useState(false);
 
-  // Fetch template image via proxy to get a CORS-safe data URL for html-to-image
+  const templateFields: TemplateField[] =
+    template?.config && Array.isArray(template.config) ? template.config : [];
+
   useEffect(() => {
-    const rawUrl = application.campaign.templateUrl;
-    if (!rawUrl) return;
-
+    if (!template?.imageUrl) return;
     setTemplateLoading(true);
-    const displayUrl = getDisplayUrl(rawUrl);
-    const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(displayUrl)}`;
 
-    fetch(proxyUrl)
-      .then((r) => {
-        if (!r.ok) throw new Error("Proxy fetch failed");
-        return r.blob();
-      })
-      .then(
-        (blob) =>
-          new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          })
-      )
-      .then((dataUrl) => setTemplateDataUrl(dataUrl))
-      .catch((err) => {
-        console.error("Failed to load template image:", err);
-        // Fallback: use the converted display URL directly
-        setTemplateDataUrl(displayUrl);
-      })
-      .finally(() => setTemplateLoading(false));
-  }, [application.campaign.templateUrl]);
+    const bgPromise = toDataUrl(template.imageUrl)
+      .then(setBgDataUrl)
+      .catch((e) => console.error("bg load failed", e));
 
-  const backgroundStyle = templateDataUrl
-    ? `url(${templateDataUrl})`
-    : application.campaign.templateUrl
-    ? `url(${getDisplayUrl(application.campaign.templateUrl)})`
-    : "none";
+    const imageFields = templateFields.filter((f) => f.type === "image" && f.value);
+    const fieldPromises = imageFields.map((f) =>
+      toDataUrl(f.value)
+        .then((dataUrl) => setFieldDataUrls((prev) => ({ ...prev, [f.id]: dataUrl })))
+        .catch((e) => console.error(`field ${f.id} load failed`, e))
+    );
+
+    Promise.all([bgPromise, ...fieldPromises]).finally(() => setTemplateLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template?.imageUrl]);
+
+  const getFieldValue = (field: TemplateField): string => {
+    const baseId = field.id.split("_")[0];
+    if (baseId === "honoree") return application.user.name || field.value;
+    return field.value;
+  };
 
   const handleUpdateStatus = async (status: string) => {
     setLoading(true);
@@ -71,15 +95,14 @@ export default function ApplicationReviewClient({ application }: { application: 
     try {
       if (status === "APPROVED" && certRef.current) {
         toast.info("Đang tạo giấy khen tự động...");
-        // Generate Image from DOM
         const dataUrl = await htmlToImage.toPng(certRef.current, { quality: 1, pixelRatio: 2 });
 
-        // Convert dataUrl to File
         const res = await fetch(dataUrl);
         const blob = await res.blob();
-        const file = new File([blob], `GiayKhen_${application.user.studentId}.png`, { type: "image/png" });
+        const file = new File([blob], `GiayKhen_${application.user.studentId}.png`, {
+          type: "image/png",
+        });
 
-        // Upload to Google Drive (via our API)
         const uploadData = new FormData();
         uploadData.append("file", file);
         const uploadRes = await fetch("/api/upload", { method: "POST", body: uploadData });
@@ -93,7 +116,6 @@ export default function ApplicationReviewClient({ application }: { application: 
         }
       }
 
-      // Update Database
       const dbRes = await fetch(`/api/applications/${application.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -112,70 +134,111 @@ export default function ApplicationReviewClient({ application }: { application: 
     }
   };
 
+  const CANVAS_W = 1123;
+  const CANVAS_H = 794;
+  const PREVIEW_W = 800;
+  const scale = PREVIEW_W / CANVAS_W;
+  const PREVIEW_H = Math.round(CANVAS_H * scale);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Quyết định & Cấp Giấy Khen</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-
-        {/* Template loading indicator */}
         {templateLoading && (
           <p className="text-sm text-gray-500 animate-pulse">Đang tải mẫu giấy khen...</p>
         )}
 
-        {/* No template warning */}
-        {!application.campaign.templateUrl && (
+        {!template && (
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
             Đợt xét duyệt này chưa có mẫu giấy khen. Hãy chọn mẫu trong trang chỉnh sửa đợt.
           </div>
         )}
 
-        {/* Certificate Preview Element */}
-        <div className="border rounded bg-gray-100 p-4 overflow-x-auto flex justify-center">
-          <div
-            ref={certRef}
-            className="relative shadow-lg"
-            style={{
-              width: "800px",
-              height: "565px",
-              backgroundColor: "#fff",
-              backgroundImage: backgroundStyle,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            {/* Absolute positioned text overlay */}
-            <div className="absolute top-[240px] left-0 right-0 text-center">
-              <h2 className="text-4xl font-bold text-red-600 uppercase font-serif">{application.user.name}</h2>
-            </div>
-            <div className="absolute top-[290px] left-0 right-0 text-center">
-              <p className="text-xl italic font-serif">Đã đạt danh hiệu: {application.campaign.title}</p>
-            </div>
+        {template && (
+          <>
+            <style dangerouslySetInnerHTML={{
+              __html: `@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap');`,
+            }} />
 
-            {application.portraitImage && (
-              <div className="absolute top-[350px] left-[80px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={application.portraitImage}
-                  alt="Portrait"
-                  className="w-[100px] h-[130px] object-cover border-4 border-white shadow-md"
-                  crossOrigin="anonymous"
-                />
+            <div
+              className="border rounded overflow-hidden mx-auto bg-gray-100"
+              style={{ width: `${PREVIEW_W}px`, height: `${PREVIEW_H}px` }}
+            >
+              <div style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}>
+                <div
+                  ref={certRef}
+                  style={{
+                    width: `${CANVAS_W}px`,
+                    height: `${CANVAS_H}px`,
+                    position: "relative",
+                    backgroundColor: "#fff",
+                    overflow: "hidden",
+                  }}
+                >
+                  {bgDataUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={bgDataUrl}
+                      alt=""
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
+
+                  {templateFields.map((field) => (
+                    <div
+                      key={field.id}
+                      style={{
+                        position: "absolute",
+                        left: `${field.x}%`,
+                        top: `${field.y}%`,
+                        transform: "translate(-50%, -50%)",
+                        color: field.color,
+                        fontSize: field.type === "text" ? `${field.fontSize}px` : undefined,
+                        fontWeight: field.bold ? "bold" : "normal",
+                        fontStyle: field.italic ? "italic" : "normal",
+                        textDecoration: field.underline ? "underline" : "none",
+                        fontFamily: field.fontFamily || "Roboto",
+                        textAlign: field.align,
+                        whiteSpace: "nowrap",
+                        width:
+                          field.type === "image" || field.type === "line"
+                            ? `${field.width}px`
+                            : undefined,
+                        height:
+                          field.type === "image" || field.type === "line"
+                            ? `${field.height}px`
+                            : undefined,
+                        backgroundColor:
+                          field.type === "line" ? field.color : "transparent",
+                        zIndex: 1,
+                      }}
+                    >
+                      {field.type === "text" && getFieldValue(field)}
+
+                      {field.type === "image" && (fieldDataUrls[field.id] || field.value) && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={fieldDataUrls[field.id] || getDisplayUrl(field.value)}
+                          alt={field.label}
+                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
-
-            <div className="absolute bottom-[80px] right-[100px] text-center">
-              <p className="text-sm">
-                Ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm{" "}
-                {new Date().getFullYear()}
-              </p>
-              <p className="font-bold mt-20">BCH Đoàn Trường</p>
             </div>
-          </div>
-        </div>
+          </>
+        )}
 
-        {/* Existing certificate — admin download + student info */}
         {application.status === "APPROVED" && application.certificateUrl && (
           <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
             <div>
@@ -198,7 +261,7 @@ export default function ApplicationReviewClient({ application }: { application: 
         <div className="flex space-x-4">
           <Button
             onClick={() => handleUpdateStatus("APPROVED")}
-            disabled={loading}
+            disabled={loading || !template}
             className="bg-green-600 hover:bg-green-700"
           >
             Duyệt & Cấp Giấy Khen
