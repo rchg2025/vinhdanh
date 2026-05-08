@@ -75,8 +75,8 @@ export default function ApplicationPage() {
         body: JSON.stringify({
           campaignId,
           data: { achievements: formData.achievements },
-          portraitUrl,
-          evidenceUrls,
+          portraitImage: portraitUrl,
+          evidenceFiles: evidenceUrls,
         }),
       });
 
