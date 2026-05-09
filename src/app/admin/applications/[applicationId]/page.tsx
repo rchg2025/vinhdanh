@@ -37,7 +37,7 @@ export default async function ApplicationDetailsPage({ params }: { params: Promi
   const data = application.data as any;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-6 w-full space-y-6">
       <h1 className="text-3xl font-bold">Chi tiết Hồ sơ</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

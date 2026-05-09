@@ -8,15 +8,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "URL is required" }, { status: 400 });
   }
 
-  // Security: only allow Google Drive URLs
+  // Security: only allow trusted image sources
+  const ALLOWED_HOSTNAMES = [
+    "drive.google.com",
+    "googleapis.com",
+    "googleusercontent.com",
+    "api.qrserver.com",
+  ];
   try {
     const parsed = new URL(url);
-    if (
-      !parsed.hostname.endsWith("drive.google.com") &&
-      !parsed.hostname.endsWith("googleapis.com") &&
-      !parsed.hostname.endsWith("googleusercontent.com")
-    ) {
-      return NextResponse.json({ error: "Only Google Drive URLs are allowed" }, { status: 400 });
+    if (!ALLOWED_HOSTNAMES.some((h) => parsed.hostname === h || parsed.hostname.endsWith("." + h))) {
+      return NextResponse.json({ error: "URL not allowed" }, { status: 400 });
     }
   } catch {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
