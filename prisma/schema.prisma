@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  studentId     String?
+  unitId        String?
+  classId       String?
+  unit          Unit?     @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  class         Class?    @relation(fields: [classId], references: [id], onDelete: SetNull)
+  role          Role      @default(USER)
+  applications  Application[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  templateUrl String?
+  formConfig  Json?    // Stores the required fields for the application form
+  applications Application[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Application {
+  id              String            @id @default(cuid())
+  userId          String
+  campaignId      String
+  status          ApplicationStatus @default(PENDING)
+  data            Json              // Store application form data (achievements, etc.)
+  evidenceFiles   Json?             // Array of file URLs/IDs
+  portraitImage   String?           // The user's portrait image
+  certificateUrl  String?           // Generated certificate URL
+  adminFeedback   String?
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign        Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model SystemSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model Unit {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  classes     Class[]
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Class {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  unitId      String
+  unit        Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, unitId])
+}
+
+model CertificateTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String
+  config      Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
