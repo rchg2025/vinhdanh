@@ -417,7 +417,8 @@ export default function ApplicationReviewClient({ application, template }: { app
             onClick={() => setShowCertModal(false)}
           >
             <div
-              className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full overflow-auto max-h-[95vh] flex flex-col"
+              className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+              style={{ width: "860px", maxWidth: "calc(100vw - 2rem)", maxHeight: "95vh" }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-6 py-4 border-b">
@@ -443,10 +444,11 @@ export default function ApplicationReviewClient({ application, template }: { app
                 </div>
               </div>
 
-              <div className="p-6 overflow-auto flex justify-center">
+              <div className="p-6 overflow-auto flex justify-center items-start">
                 {template ? (
                   <>
-                    <div style={{ transform: `scale(${800 / CANVAS_W})`, transformOrigin: "top left", width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, flexShrink: 0, pointerEvents: "none" }}>
+                    <div style={{ width: `${800}px`, height: `${Math.round(CANVAS_H * 800 / CANVAS_W)}px`, overflow: "hidden", flexShrink: 0 }}>
+                    <div style={{ transform: `scale(${800 / CANVAS_W})`, transformOrigin: "top left", width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, pointerEvents: "none" }}>
                       <div
                         style={{ width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, position: "relative", backgroundColor: "#fff", overflow: "hidden" }}
                       >
@@ -514,6 +516,7 @@ export default function ApplicationReviewClient({ application, template }: { app
                           <img src={portraitDataUrl} alt="Ảnh đại diện" style={{ position: "absolute", left: "80px", top: "350px", width: "100px", height: "130px", objectFit: "cover", border: "4px solid white", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", zIndex: 2 }} />
                         )}
                       </div>
+                    </div>
                     </div>
                   </>
                 ) : (
