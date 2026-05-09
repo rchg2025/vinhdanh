@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-import { Trophy, Mail, Lock, LogIn, ChevronRight } from "lucide-react";
+import { Trophy, Mail, Lock, LogIn, ChevronRight, Home } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -152,6 +152,11 @@ export default function LoginPage() {
               Đăng ký ngay <ChevronRight size={14} />
             </Link>
           </p>
+          <div className="text-center mt-4">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              <Home size={14} /> Quay về trang chủ
+            </Link>
+          </div>
         </div>
       </div>
     </div>

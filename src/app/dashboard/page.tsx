@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Trophy, Settings, Calendar, Clock, Archive, ChevronRight, FileText } from "lucide-react";
+import { Trophy, Settings, Clock, Archive, ChevronRight, FileText, ExternalLink } from "lucide-react";
 import { HeaderLogoutButton } from "@/components/LogoutButton";
 
 const statusMap: Record<string, { label: string; cls: string; icon: string }> = {
@@ -173,15 +173,34 @@ export default async function DashboardPage() {
                             </span>
                           </td>
                           <td className="px-8 py-5 text-right">
-                            {app.status === "APPROVED" && app.certificateUrl ? (
-                              <a
-                                href={app.certificateUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-xs shadow-sm"
-                              >
-                                Tải Giấy Khen <ChevronRight size={14} />
-                              </a>
+                            {app.status === "APPROVED" ? (
+                              <div className="flex flex-col items-end gap-2">
+                                {app.certificateUrl && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={`/api/proxy-image?url=${encodeURIComponent(
+                                      (() => {
+                                        const u = app.certificateUrl!;
+                                        const m = u.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+                                        if (m?.[1]) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
+                                        const m2 = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                                        if (m2?.[1]) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w400`;
+                                        return u;
+                                      })()
+                                    )}`}
+                                    alt="Giấy khen"
+                                    className="w-32 h-auto rounded-lg border border-gray-200 shadow-sm"
+                                  />
+                                )}
+                                <div className="flex gap-2">
+                                  <Link
+                                    href={`/certificate/${app.id}`}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-xs shadow-sm"
+                                  >
+                                    <ExternalLink size={12} /> Xem giấy khen
+                                  </Link>
+                                </div>
+                              </div>
                             ) : (
                               <span className="text-gray-300 text-xs font-medium">Chưa có</span>
                             )}

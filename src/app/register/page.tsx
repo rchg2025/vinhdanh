@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+
+type UnitWithClasses = {
+  id: string;
+  name: string;
+  classes: { id: string; name: string }[];
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,10 +20,30 @@ export default function RegisterPage() {
     studentId: "",
     email: "",
     password: "",
+    unitId: "",
+    className: "",
   });
   const [loading, setLoading] = useState(false);
+  const [units, setUnits] = useState<UnitWithClasses[]>([]);
+  const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetch("/api/units/public").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setUnits(data);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (formData.unitId) {
+      const unit = units.find(u => u.id === formData.unitId);
+      setClasses(unit?.classes || []);
+      setFormData(prev => ({ ...prev, className: "" }));
+    } else {
+      setClasses([]);
+    }
+  }, [formData.unitId, units]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
@@ -117,6 +143,47 @@ export default function RegisterPage() {
                 minLength={6}
                 className="h-11 bg-gray-50 border-gray-200 focus:border-blue-400 rounded-xl"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="unitId" className="text-gray-700 font-medium">Đơn vị / Chi đoàn</Label>
+              <select
+                id="unitId"
+                value={formData.unitId}
+                onChange={handleChange}
+                className="w-full h-11 px-3 bg-gray-50 border border-gray-200 focus:border-blue-400 rounded-xl text-gray-800 text-sm outline-none"
+              >
+                <option value="">-- Chọn đơn vị --</option>
+                {units.map(u => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="className" className="text-gray-700 font-medium">Tên lớp</Label>
+              {classes.length > 0 ? (
+                <select
+                  id="className"
+                  value={formData.className}
+                  onChange={handleChange}
+                  className="w-full h-11 px-3 bg-gray-50 border border-gray-200 focus:border-blue-400 rounded-xl text-gray-800 text-sm outline-none"
+                >
+                  <option value="">-- Chọn lớp --</option>
+                  {classes.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <Input
+                  id="className"
+                  type="text"
+                  placeholder="Nhập tên lớp"
+                  value={formData.className}
+                  onChange={handleChange}
+                  className="h-11 bg-gray-50 border-gray-200 focus:border-blue-400 rounded-xl"
+                />
+              )}
             </div>
 
             <button
