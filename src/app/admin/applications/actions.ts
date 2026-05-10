@@ -18,7 +18,7 @@ export async function deleteApplication(id: string) {
       where: { id }
     });
 
-    revalidatePath("/admin/applications");
+    revalidatePath("/", "layout");
     return { success: true, message: "Đã xóa hồ sơ thành công" };
   } catch (error) {
     console.error("Lỗi khi xóa hồ sơ:", error);

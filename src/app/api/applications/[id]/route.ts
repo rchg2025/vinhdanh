@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { sendEmail } from "@/lib/mail";
 import { emailTemplates } from "@/lib/email-templates";
+import { revalidatePath } from "next/cache";
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") {
@@ -36,7 +37,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
       sendEmail(application.user.email, template.subject, finalHtml).catch(err => console.error("Email send failed:", err));
     }
-
+    revalidatePath("/", "layout");
     return NextResponse.json(application);
   } catch (error) {
     return NextResponse.json({ message: "Lỗi máy chủ" }, { status: 500 });
