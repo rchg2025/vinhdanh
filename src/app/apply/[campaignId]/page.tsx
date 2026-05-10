@@ -24,6 +24,19 @@ export default function ApplicationPage() {
   const [portraitFile, setPortraitFile] = useState<File | null>(null);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent, setFile: (file: File) => void) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
+    }
+  };
+
   const handleUpload = async (file: File) => {
     // Sử dụng Resumable Upload: tạo session trên server, sau đó upload trực tiếp
     // từ trình duyệt lên Google Drive để không bị giới hạn dung lượng.
@@ -178,16 +191,19 @@ export default function ApplicationPage() {
                   </Label>
                   <p className="text-xs text-gray-500">Ảnh rõ mặt, dùng để in giấy khen hoặc hiển thị vinh danh (JPG/PNG).</p>
                   
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50">
+                  <div 
+                    className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50 cursor-pointer"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, setPortraitFile)}
+                    onClick={() => document.getElementById('portrait')?.click()}
+                  >
                     <div className="space-y-1 text-center">
                       <Upload className="mx-auto h-10 w-10 text-gray-400" />
                       <div className="flex text-sm text-gray-600 justify-center">
-                        <label htmlFor="portrait" className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none px-2 py-1">
-                          <span>Tải ảnh lên</span>
-                          <input id="portrait" name="portrait" type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files && setPortraitFile(e.target.files[0])} required />
-                        </label>
+                        <span className="font-medium text-indigo-600 hover:text-indigo-500 px-2 py-1">Kéo thả hoặc tải ảnh lên</span>
+                        <input id="portrait" name="portrait" type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && setPortraitFile(e.target.files[0])} required={!portraitFile} />
                       </div>
-                      {portraitFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{portraitFile.name}</p> : <p className="text-xs text-gray-400">Chưa chọn tệp nào</p>}
+                      {portraitFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{portraitFile.name}</p> : <p className="text-xs text-gray-400">Không giới hạn dung lượng</p>}
                     </div>
                   </div>
                 </div>
@@ -199,16 +215,19 @@ export default function ApplicationPage() {
                   </Label>
                   <p className="text-xs text-gray-500">Gộp tất cả giấy chứng nhận vào 1 tệp PDF hoặc ZIP, RAR.</p>
                   
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50">
+                  <div 
+                    className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50 cursor-pointer"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, setEvidenceFile)}
+                    onClick={() => document.getElementById('evidence')?.click()}
+                  >
                     <div className="space-y-1 text-center">
                       <Upload className="mx-auto h-10 w-10 text-gray-400" />
                       <div className="flex text-sm text-gray-600 justify-center">
-                        <label htmlFor="evidence" className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none px-2 py-1">
-                          <span>Tải file nén lên</span>
-                          <input id="evidence" name="evidence" type="file" accept=".zip,.rar,.pdf,.doc,.docx" className="sr-only" onChange={(e) => e.target.files && setEvidenceFile(e.target.files[0])} />
-                        </label>
+                        <span className="font-medium text-indigo-600 hover:text-indigo-500 px-2 py-1">Kéo thả hoặc tải file nén lên</span>
+                        <input id="evidence" name="evidence" type="file" accept=".zip,.rar,.pdf,.doc,.docx" className="hidden" onChange={(e) => e.target.files && setEvidenceFile(e.target.files[0])} />
                       </div>
-                      {evidenceFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{evidenceFile.name}</p> : <p className="text-xs text-gray-400">Không bắt buộc</p>}
+                      {evidenceFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{evidenceFile.name}</p> : <p className="text-xs text-gray-400">Không giới hạn dung lượng</p>}
                     </div>
                   </div>
                 </div>

@@ -178,6 +178,7 @@ export async function finishResumableUpload(fileId: string) {
     
     await drive.permissions.create({
       fileId: fileId,
+      supportsAllDrives: true,
       requestBody: {
         role: "reader",
         type: "anyone",
@@ -186,6 +187,7 @@ export async function finishResumableUpload(fileId: string) {
 
     const file = await drive.files.get({
       fileId: fileId,
+      supportsAllDrives: true,
       fields: "id, webViewLink, webContentLink"
     });
 
