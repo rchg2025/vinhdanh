@@ -105,3 +105,12 @@ model CertificateTemplate {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Otp {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  type      String   // REGISTER or FORGOT_PASSWORD
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

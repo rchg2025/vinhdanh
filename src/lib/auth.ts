@@ -50,6 +50,30 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        if (!user.email) return false;
+        
+        let dbUser = await prisma.user.findUnique({
+          where: { email: user.email }
+        });
+
+        if (!dbUser) {
+          dbUser = await prisma.user.create({
+            data: {
+              email: user.email,
+              name: user.name || "Người dùng Google",
+              image: user.image,
+              role: "USER" // Mặc định là USER, admin có thể đổi sau
+            }
+          });
+        }
+        
+        user.id = dbUser.id;
+        user.role = dbUser.role as string;
+      }
+      return true;
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = user.role;

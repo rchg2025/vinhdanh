@@ -20,8 +20,9 @@ export default async function Home() {
 
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-5">
-        <div className="text-white font-bold text-xl tracking-tight">
-          🏆 Vinh Danh <span className="font-light opacity-80">Online</span>
+        <div className="text-white font-bold text-xl tracking-tight flex items-center gap-2">
+          <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+          <span>Vinh Danh <span className="font-light opacity-80">Online</span></span>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -48,11 +49,10 @@ export default async function Home() {
             Hệ thống đang hoạt động
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6 flex flex-wrap justify-center gap-3">
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               Vinh Danh
             </span>
-            <br />
             <span className="text-gray-800 dark:text-white">
               Trực Tuyến
             </span>
@@ -60,7 +60,7 @@ export default async function Home() {
 
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-10 leading-relaxed">
             Hệ thống <strong>Vinh danh & Cấp giấy khen tự động</strong> dành cho sinh viên 
-            Cao đẳng Bách Khoa Nam Sài Gòn. Nộp hồ sơ nhanh chóng, nhận kết quả minh bạch.
+            Trường Cao đẳng Bách Khoa Nam Sài Gòn. Nộp hồ sơ nhanh chóng, nhận kết quả minh bạch.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

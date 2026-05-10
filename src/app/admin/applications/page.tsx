@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FileText, Eye } from "lucide-react";
+import { DeleteApplicationButton } from "./delete-button";
 
 export default async function AdminApplicationsPage({ searchParams }: { searchParams: Promise<{ campaignId?: string }> }) {
   const resolvedSearchParams = await searchParams;
@@ -68,12 +69,13 @@ export default async function AdminApplicationsPage({ searchParams }: { searchPa
                         {app.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                       <Link href={`/admin/applications/${app.id}`}>
                         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-gray-600 hover:text-indigo-600 rounded-lg">
                           <Eye size={14} /> Duyệt
                         </Button>
                       </Link>
+                      <DeleteApplicationButton id={app.id} />
                     </td>
                   </tr>
                 ))

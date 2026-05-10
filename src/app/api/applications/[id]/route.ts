@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { sendEmail } from "@/lib/mail";
-
+import { emailTemplates } from "@/lib/email-templates";
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") {
@@ -11,27 +11,30 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   try {
-    const { status, certificateUrl } = await req.json();
+    const { status, certificateUrl, adminFeedback } = await req.json();
     const { id } = await params;
 
     const application = await prisma.application.update({
       where: { id },
-      data: { status, certificateUrl },
+      data: { status, certificateUrl, adminFeedback },
       include: { user: true, campaign: true }
     });
 
     // Send Email notification asynchronously
     if (application.user.email) {
-      let subject = "Cập nhật trạng thái Hồ sơ Xét duyệt";
-      let content = `<p>Chào ${application.user.name},</p><p>Trạng thái hồ sơ <strong>${application.campaign.title}</strong> của bạn đã được cập nhật thành: <strong>${status}</strong>.</p>`;
-
+      const template = emailTemplates.applicationStatus(
+        application.user.name || "Sinh viên", 
+        application.campaign.title, 
+        status, 
+        adminFeedback
+      );
+      
+      let finalHtml = template.html;
       if (status === "APPROVED" && certificateUrl) {
-        subject = "Chúc mừng! Bạn đã đạt danh hiệu " + application.campaign.title;
-        content += `<p>Bạn có thể tải giấy chứng nhận tại đây: <a href="${certificateUrl}">Tải Giấy Khen</a></p>`;
+        finalHtml += `<div style="max-width: 600px; margin: 0 auto; text-align: center;"><p>Bạn có thể tải giấy chứng nhận tại đây: <a href="${certificateUrl}" style="color: #1a56db; font-weight: bold;">Tải Giấy Khen</a></p></div>`;
       }
 
-      // Do not await this so it doesn't block the request if SMTP is not configured properly
-      sendEmail(application.user.email, subject, content).catch(err => console.error("Email send failed:", err));
+      sendEmail(application.user.email, template.subject, finalHtml).catch(err => console.error("Email send failed:", err));
     }
 
     return NextResponse.json(application);

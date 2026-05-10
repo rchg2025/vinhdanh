@@ -24,8 +24,23 @@ export async function POST(req: Request) {
         portraitImage,
         evidenceFiles,
         status: "PENDING",
+      },
+      include: {
+        campaign: true,
       }
     });
+
+    try {
+      // Send confirmation email
+      if (session.user.email) {
+        const { emailTemplates } = await import("@/lib/email-templates");
+        const { sendEmail } = await import("@/lib/mail");
+        const template = emailTemplates.applicationSubmitted(session.user.name || "Sinh viên", application.campaign.title);
+        await sendEmail(session.user.email, template.subject, template.html);
+      }
+    } catch (e) {
+      console.error("Lỗi gửi email nộp hồ sơ:", e);
+    }
 
     return NextResponse.json(application, { status: 201 });
   } catch (error) {

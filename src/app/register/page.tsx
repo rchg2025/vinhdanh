@@ -30,7 +30,7 @@ export default function RegisterPage() {
   useEffect(() => {
     fetch("/api/units/public").then(r => r.json()).then(data => {
       if (Array.isArray(data)) setUnits(data);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -82,11 +82,11 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl mb-4">
-            <span className="text-3xl">📝</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl mb-4 overflow-hidden p-2">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-white">Tạo Tài Khoản</h1>
-          <p className="text-white/70 text-sm mt-1">Bách Khoa Nam Sài Gòn</p>
+          <p className="text-white/70 text-sm mt-1">Trường Cao đẳng Bách Khoa Nam Sài Gòn</p>
         </div>
 
         {/* Glass Card */}
@@ -124,7 +124,7 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="sv@student.abc.edu.vn"
+                placeholder="20110382xx@sv.nsg.edu.vn"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -194,8 +194,8 @@ export default function RegisterPage() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
                   Đang xử lý...
                 </span>
