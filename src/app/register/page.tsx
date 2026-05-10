@@ -83,7 +83,7 @@ export default function RegisterPage() {
         {/* Logo / Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl mb-4 overflow-hidden p-2">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+            <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-white">Tạo Tài Khoản</h1>
           <p className="text-white/70 text-sm mt-1">Trường Cao đẳng Bách Khoa Nam Sài Gòn</p>

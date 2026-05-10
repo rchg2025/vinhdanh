@@ -21,7 +21,7 @@ export default async function Home() {
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-5">
         <div className="text-white font-bold text-xl tracking-tight flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+          <img src="/logo.svg" alt="Logo" className="w-8 h-8 object-contain" />
           <span>Vinh Danh <span className="font-light opacity-80">Online</span></span>
         </div>
         <div className="flex items-center gap-3">
