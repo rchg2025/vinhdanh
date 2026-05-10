@@ -8,7 +8,7 @@ export default async function Home() {
     where: { status: "APPROVED" },
     include: { user: { select: { name: true, studentId: true } }, campaign: { select: { title: true } } },
     orderBy: { updatedAt: "desc" },
-    take: 20,
+    take: 10,
   });
 
   return (

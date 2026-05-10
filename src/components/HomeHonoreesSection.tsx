@@ -26,7 +26,7 @@ function HonoreeCard({ honoree }: { honoree: Honoree }) {
   return (
     <Link
       href={`/certificate/${honoree.id}`}
-      className="flex-shrink-0 w-52 bg-white/90 backdrop-blur-sm rounded-2xl border border-white/50 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
+      className="w-full bg-white/90 backdrop-blur-sm rounded-2xl border border-white/50 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
     >
       {thumb ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -49,53 +49,11 @@ function HonoreeCard({ honoree }: { honoree: Honoree }) {
 }
 
 export default function HomeHonoreesSection({ honorees }: { honorees: Honoree[] }) {
-  // Split into 2 rows
-  const row1 = honorees.filter((_, i) => i % 2 === 0);
-  const row2 = honorees.filter((_, i) => i % 2 === 1);
-
-  const sliderRef1 = useRef<HTMLDivElement>(null);
-  const sliderRef2 = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll animation
-  useEffect(() => {
-    const animate = (el: HTMLDivElement | null, speed: number, reverse = false) => {
-      if (!el) return;
-      let pos = reverse ? -el.scrollWidth / 2 : 0;
-      const step = () => {
-        pos += reverse ? -speed : speed;
-        if (!reverse && pos >= el.scrollWidth / 2) pos = 0;
-        if (reverse && pos <= -el.scrollWidth / 2) pos = 0;
-        el.style.transform = `translateX(${-pos}px)`;
-        requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    };
-
-    // Only animate if rows have enough content
-    if (row1.length >= 2) animate(sliderRef1.current, 0.4);
-    if (row2.length >= 2) animate(sliderRef2.current, 0.3, true);
-  }, [row1.length, row2.length]);
-
   return (
-    <div className="space-y-4 overflow-hidden">
-      {/* Row 1 */}
-      <div className="overflow-hidden">
-        <div ref={sliderRef1} className="flex gap-4 w-max">
-          {[...row1, ...row1].map((h, i) => (
-            <HonoreeCard key={`r1-${h.id}-${i}`} honoree={h} />
-          ))}
-        </div>
-      </div>
-      {/* Row 2 */}
-      {row2.length > 0 && (
-        <div className="overflow-hidden">
-          <div ref={sliderRef2} className="flex gap-4 w-max">
-            {[...row2, ...row2].map((h, i) => (
-              <HonoreeCard key={`r2-${h.id}-${i}`} honoree={h} />
-            ))}
-          </div>
-        </div>
-      )}
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {honorees.map((h) => (
+        <HonoreeCard key={h.id} honoree={h} />
+      ))}
     </div>
   );
 }
