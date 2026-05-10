@@ -35,8 +35,8 @@ export default async function DashboardPage() {
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
         <div className="w-full px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl text-white shadow-md">
-              <Trophy size={20} />
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 rounded-xl shadow-md flex items-center justify-center w-9 h-9">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-gray-900 text-lg hidden sm:block tracking-tight">Vinh Danh Online</span>
           </div>
@@ -68,8 +68,8 @@ export default async function DashboardPage() {
       <main className="w-full px-4 md:px-8 py-8 space-y-12">
         {/* Welcome */}
         <div className="relative overflow-hidden bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
-          <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none text-indigo-900 overflow-hidden">
-            <Trophy size={300} />
+          <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none overflow-hidden">
+            <img src="/logo.png" alt="" className="w-[300px] h-[300px] object-contain grayscale" />
           </div>
           <div className="relative z-10 max-w-2xl">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">

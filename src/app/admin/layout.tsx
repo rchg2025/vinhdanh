@@ -29,8 +29,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Brand */}
         <div className="px-6 py-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md">
-              <Trophy size={20} />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md p-1.5">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="font-bold text-gray-900 leading-tight">Vinh Danh</h1>
