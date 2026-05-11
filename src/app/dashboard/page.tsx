@@ -195,7 +195,9 @@ export default async function DashboardPage() {
                                       })()
                                     )}`}
                                     alt="Giấy khen"
-                                    className="w-32 h-auto rounded-lg border border-gray-200 shadow-sm"
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="w-32 h-auto rounded-lg border border-gray-200 shadow-sm bg-gray-100"
                                   />
                                 )}
                                 <div className="flex gap-2">

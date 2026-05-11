@@ -33,7 +33,9 @@ function HonoreeCard({ honoree }: { honoree: Honoree }) {
         <img
           src={thumb}
           alt={`Giấy khen ${honoree.user.name}`}
-          className="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300 bg-gray-100"
         />
       ) : (
         <div className="w-full h-36 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-5xl">
