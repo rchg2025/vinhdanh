@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,14 @@ export default function ApplicationPage() {
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      toast.error("Vui lòng đăng nhập trước khi nộp hồ sơ.");
+      router.push(`/login?callbackUrl=/apply/${campaignId}`);
+    }
+  }, [status, router, campaignId]);
 
   const [formData, setFormData] = useState({
     achievements: "",
@@ -140,6 +149,14 @@ export default function ApplicationPage() {
     }
   };
 
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       {/* Header / Sidebar alternative - Top fixed header */}
@@ -162,13 +179,12 @@ export default function ApplicationPage() {
             <h1 className="text-2xl md:text-3xl font-bold mb-2">Đăng ký Danh hiệu / Giải thưởng</h1>
             <p className="text-indigo-100 text-sm md:text-base">
               Vui lòng điền đầy đủ các thông tin và đính kèm minh chứng rõ ràng.
-              File được tải lên trực tiếp Google Drive, không giới hạn dung lượng.
             </p>
           </div>
 
           <div className="p-6 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
-              
+
               <div className="space-y-2">
                 <Label htmlFor="achievements" className="text-base font-semibold text-gray-800">Thành tích nổi bật của bạn</Label>
                 <p className="text-sm text-gray-500 mb-2">Liệt kê ngắn gọn các bằng khen, thẻ điểm, hoặc các hoạt động đã tham gia phù hợp với tiêu chí.</p>
@@ -190,8 +206,8 @@ export default function ApplicationPage() {
                     Ảnh thẻ chân dung
                   </Label>
                   <p className="text-xs text-gray-500">Ảnh rõ mặt, dùng để in giấy khen hoặc hiển thị vinh danh (JPG/PNG).</p>
-                  
-                  <div 
+
+                  <div
                     className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50 cursor-pointer"
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, setPortraitFile)}
@@ -203,7 +219,7 @@ export default function ApplicationPage() {
                         <span className="font-medium text-indigo-600 hover:text-indigo-500 px-2 py-1">Kéo thả hoặc tải ảnh lên</span>
                         <input id="portrait" name="portrait" type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && setPortraitFile(e.target.files[0])} required={!portraitFile} />
                       </div>
-                      {portraitFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{portraitFile.name}</p> : <p className="text-xs text-gray-400">Không giới hạn dung lượng</p>}
+                      {portraitFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{portraitFile.name}</p> : <p className="text-xs text-gray-400">Dung lượng tải lên tối đa 10MB</p>}
                     </div>
                   </div>
                 </div>
@@ -214,8 +230,8 @@ export default function ApplicationPage() {
                     File nén minh chứng
                   </Label>
                   <p className="text-xs text-gray-500">Gộp tất cả giấy chứng nhận vào 1 tệp PDF hoặc ZIP, RAR.</p>
-                  
-                  <div 
+
+                  <div
                     className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50 cursor-pointer"
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, setEvidenceFile)}
@@ -227,21 +243,21 @@ export default function ApplicationPage() {
                         <span className="font-medium text-indigo-600 hover:text-indigo-500 px-2 py-1">Kéo thả hoặc tải file nén lên</span>
                         <input id="evidence" name="evidence" type="file" accept=".zip,.rar,.pdf,.doc,.docx" className="hidden" onChange={(e) => e.target.files && setEvidenceFile(e.target.files[0])} />
                       </div>
-                      {evidenceFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{evidenceFile.name}</p> : <p className="text-xs text-gray-400">Không giới hạn dung lượng</p>}
+                      {evidenceFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px]">{evidenceFile.name}</p> : <p className="text-xs text-gray-400">Dung lượng tải lên tối đa 10MB</p>}
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="pt-6">
-                <Button 
-                  type="submit" 
-                  disabled={loading || uploading} 
+                <Button
+                  type="submit"
+                  disabled={loading || uploading}
                   className="w-full h-12 text-base rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 transition-all gap-2"
                 >
                   {(loading || uploading) ? (
                     <span className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       {uploading ? "Đang đẩy file lên hệ thống..." : "Đang xử lý..."}
                     </span>
                   ) : (
