@@ -3,12 +3,20 @@ import { prisma } from "@/lib/prisma";
 import HomeHonoreesSection from "@/components/HomeHonoreesSection";
 
 export default async function Home() {
-  // Fetch up to 20 recent approved applications for the slider
+  // Fetch up to 10 recent approved applications for the slider
   const honorees = await prisma.application.findMany({
     where: { status: "APPROVED" },
     include: { user: { select: { name: true, studentId: true } }, campaign: { select: { title: true } } },
     orderBy: { updatedAt: "desc" },
     take: 10,
+  });
+
+  const now = new Date();
+  const activeCampaigns = await prisma.campaign.findMany({
+    where: {
+      endDate: { gte: now }
+    },
+    orderBy: { endDate: "asc" },
   });
 
   return (
@@ -98,6 +106,57 @@ export default async function Home() {
           </div>
         </div>
       </main>
+
+      {/* Active Campaigns */}
+      {activeCampaigns.length > 0 && (
+        <section className="relative z-10 px-6 md:px-12 pb-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">📢 Các Đợt Xét Duyệt Đang Mở</h2>
+              <p className="text-white/80">Tham gia nộp hồ sơ xét duyệt các danh hiệu cao quý của nhà trường</p>
+            </div>
+            
+            <div className="grid gap-6">
+              {activeCampaigns.map(campaign => {
+                const isStarted = new Date(campaign.startDate) <= now;
+                return (
+                  <div key={campaign.id} className="glass-card p-6 md:p-8 flex flex-col md:flex-row gap-6 justify-between items-center hover:scale-[1.02] transition-transform">
+                    <div className="flex-1 text-center md:text-left">
+                      <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">{campaign.title}</h3>
+                      {campaign.description && (
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">{campaign.description}</p>
+                      )}
+                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-medium">
+                        <div className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-md border border-indigo-100 flex items-center gap-1.5">
+                          🗓 Mở: {new Date(campaign.startDate).toLocaleDateString("vi-VN")}
+                        </div>
+                        <div className="bg-rose-50 text-rose-700 px-3 py-1.5 rounded-md border border-rose-100 flex items-center gap-1.5">
+                          ⏰ Đóng: {new Date(campaign.endDate).toLocaleDateString("vi-VN")}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="shrink-0 w-full md:w-auto">
+                      {isStarted ? (
+                        <Link 
+                          href={`/apply/${campaign.id}`}
+                          className="block w-full text-center px-8 py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all"
+                        >
+                          Nộp ngay 🚀
+                        </Link>
+                      ) : (
+                        <div className="w-full text-center px-8 py-3.5 bg-gray-100 text-gray-500 font-bold rounded-xl border border-gray-200 cursor-not-allowed">
+                          Chưa mở cổng
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Vinh danh gương sáng */}
       {honorees.length > 0 && (
