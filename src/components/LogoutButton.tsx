@@ -28,3 +28,16 @@ export function HeaderLogoutButton() {
     </Button>
   );
 }
+
+export function HomeLogoutButton() {
+  return (
+    <Button 
+      variant="ghost" 
+      onClick={() => signOut({ callbackUrl: "/login" })}
+      className="flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all h-9 w-9"
+      title="Đăng xuất"
+    >
+      <LogOut size={16} />
+    </Button>
+  );
+}

@@ -2,10 +2,15 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import HomeHonoreesSection from "@/components/HomeHonoreesSection";
 import HomeCampaignsSlider from "@/components/HomeCampaignsSlider";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { HomeLogoutButton } from "@/components/LogoutButton";
 
 export const revalidate = 60; // 60 seconds ISR
 
 export default async function Home() {
+  const session = await getServerSession(authOptions);
+
   // Fetch up to 10 recent approved applications for the slider
   const honorees = await prisma.application.findMany({
     where: { status: "APPROVED" },
@@ -45,18 +50,36 @@ export default async function Home() {
           </Link>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="px-5 py-2.5 text-sm font-medium text-white/90 hover:text-white transition-colors"
-          >
-            Đăng nhập
-          </Link>
-          <Link
-            href="/register"
-            className="px-5 py-2.5 text-sm font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            Đăng ký
-          </Link>
+          {session ? (
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 py-1.5 px-2.5 rounded-full">
+              <Link href="/dashboard" className="flex items-center gap-3 group">
+                <div className="text-right hidden sm:block mr-1">
+                  <p className="text-sm font-semibold text-white group-hover:text-indigo-200 transition-colors">{session.user.name}</p>
+                  <p className="text-xs text-white/70">{session.user.email}</p>
+                </div>
+                <div className="w-9 h-9 rounded-full bg-indigo-600 flex flex-shrink-0 items-center justify-center text-white text-sm font-bold shadow-sm border border-white/30">
+                  {session.user.name?.charAt(0).toUpperCase() || "U"}
+                </div>
+              </Link>
+              <div className="w-px h-6 bg-white/20 mx-1"></div>
+              <HomeLogoutButton />
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-5 py-2.5 text-sm font-medium text-white/90 hover:text-white transition-colors"
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                href="/register"
+                className="px-5 py-2.5 text-sm font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                Đăng ký
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
