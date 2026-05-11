@@ -59,10 +59,8 @@ export default function CertificateViewClient({ application, template }: { appli
   const [portraitDataUrl, setPortraitDataUrl] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [containerW, setContainerW] = useState(800);
+  const [canvasDimensions, setCanvasDimensions] = useState({ w: 1123, h: 794 });
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const CANVAS_W = 1123;
-  const CANVAS_H = 794;
 
   const certViewUrl = `${typeof window !== "undefined" ? window.location.origin : "https://vinhdanh.ite.id.vn"}/certificate/${application.id}`;
 
@@ -85,7 +83,18 @@ export default function CertificateViewClient({ application, template }: { appli
   useEffect(() => {
     if (!template?.imageUrl) return;
 
-    const bgPromise = toDataUrl(template.imageUrl).then(setBgDataUrl).catch(console.error);
+    const bgPromise = toDataUrl(template.imageUrl).then((url) => {
+      setBgDataUrl(url);
+      const img = new window.Image();
+      img.onload = () => {
+        if (img.naturalHeight > img.naturalWidth) {
+          setCanvasDimensions({ w: 794, h: 1123 });
+        } else {
+          setCanvasDimensions({ w: 1123, h: 794 });
+        }
+      };
+      img.src = url;
+    }).catch(console.error);
 
     const imageFields = templateFields.filter(
       (f) => f.type === "image" && f.value && f.id.split("_")[0] !== "portrait"
@@ -116,8 +125,8 @@ export default function CertificateViewClient({ application, template }: { appli
     return field.value;
   };
 
-  const scale = containerW / CANVAS_W;
-  const previewH = Math.round(CANVAS_H * scale);
+  const scale = containerW / canvasDimensions.w;
+  const previewH = Math.round(canvasDimensions.h * scale);
 
   const handleDownload = async () => {
     if (!certRef.current) return;
@@ -186,8 +195,8 @@ export default function CertificateViewClient({ application, template }: { appli
               style={{
                 transform: `scale(${scale})`,
                 transformOrigin: "top left",
-                width: `${CANVAS_W}px`,
-                height: `${CANVAS_H}px`,
+                width: `${canvasDimensions.w}px`,
+                height: `${canvasDimensions.h}px`,
                 position: "relative",
                 backgroundColor: "#fff",
               }}
@@ -196,8 +205,8 @@ export default function CertificateViewClient({ application, template }: { appli
               <div
                 ref={certRef}
                 style={{
-                  width: `${CANVAS_W}px`,
-                  height: `${CANVAS_H}px`,
+                  width: `${canvasDimensions.w}px`,
+                  height: `${canvasDimensions.h}px`,
                   position: "absolute",
                   top: 0,
                   left: 0,
@@ -249,7 +258,7 @@ export default function CertificateViewClient({ application, template }: { appli
                       <img
                         src={qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(certViewUrl)}`}
                         alt="QR Code"
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        style={{ width: "100%", height: "100%", objectFit: "contain", backgroundColor: "#fff", padding: "6px", borderRadius: "8px" }}
                       />
                     )}
                   </div>

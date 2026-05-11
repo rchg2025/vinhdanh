@@ -106,7 +106,7 @@ export default function ForgotPasswordPage() {
                   id="email"
                   type="email"
                   required
-                  placeholder="sv@student.abc.edu.vn"
+                  placeholder="Nhập email của bạn"
                   className="pl-10 h-12 rounded-xl bg-gray-50"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

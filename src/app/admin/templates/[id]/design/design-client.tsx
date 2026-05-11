@@ -81,6 +81,7 @@ export default function DesignClient({ template }: { template: any }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [canvasScale, setCanvasScale] = useState(1);
+  const [canvasDimensions, setCanvasDimensions] = useState({ w: 1123, h: 794 });
   const canvasScaleRef = useRef(1);
   const dragInfo = useRef({ fieldId: "", startX: 0, startY: 0, initialX: 0, initialY: 0 });
   const resizeInfo = useRef({ fieldId: "", startX: 0, startY: 0, initialWidth: 0, initialHeight: 0, initialFontSize: 0 });
@@ -102,13 +103,13 @@ export default function DesignClient({ template }: { template: any }) {
       const w = canvasContainerRef.current.clientWidth - padding;
       const h = canvasContainerRef.current.clientHeight - padding;
       if (w <= 0 || h <= 0) return;
-      const scale = Math.min(w / 1123, h / 794, 1);
+      const scale = Math.min(w / canvasDimensions.w, h / canvasDimensions.h, 1);
       setCanvasScale(Math.max(scale, 0.1));
     };
     updateScale();
     window.addEventListener("resize", updateScale);
     return () => window.removeEventListener("resize", updateScale);
-  }, []);
+  }, [canvasDimensions]);
 
   const handleAddField = (fieldDef: any) => {
     const newField: TemplateField = {
@@ -565,18 +566,18 @@ export default function DesignClient({ template }: { template: any }) {
       >
         {/* Wrapper reserves the visual layout space for the scaled canvas */}
         <div style={{
-          width: `${Math.round(1123 * canvasScale)}px`,
-          height: `${Math.round(794 * canvasScale)}px`,
+          width: `${Math.round(canvasDimensions.w * canvasScale)}px`,
+          height: `${Math.round(canvasDimensions.h * canvasScale)}px`,
           position: "relative",
           flexShrink: 0,
         }}>
-        {/* A4 Landscape: 1123x794px, dynamically scaled to fit */}
+        {/* dynamically scaled to fit */}
         <div 
           ref={containerRef}
           className="absolute top-0 left-0 bg-white shadow-2xl"
           style={{ 
-            width: "1123px", 
-            height: "794px", 
+            width: `${canvasDimensions.w}px`, 
+            height: `${canvasDimensions.h}px`, 
             transform: `scale(${canvasScale})`,
             transformOrigin: "top left",
           }}
@@ -587,8 +588,16 @@ export default function DesignClient({ template }: { template: any }) {
             src={getDisplayUrl(template.imageUrl)} 
             alt="Template" 
             className="w-full h-full object-cover pointer-events-none opacity-90"
+            onLoad={(e) => {
+              const img = e.target as HTMLImageElement;
+              if (img.naturalHeight > img.naturalWidth) {
+                setCanvasDimensions({ w: 794, h: 1123 });
+              } else {
+                setCanvasDimensions({ w: 1123, h: 794 });
+              }
+            }}
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1123x794?text=L%E1%BB%97i+%E1%BA%A3nh+n%E1%BB%81n';
+              (e.target as HTMLImageElement).src = `https://via.placeholder.com/${canvasDimensions.w}x${canvasDimensions.h}?text=L%E1%BB%97i+%E1%BA%A3nh+n%E1%BB%81n`;
             }}
           />
 
@@ -648,7 +657,7 @@ export default function DesignClient({ template }: { template: any }) {
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=${sz}x${sz}&data=${encodeURIComponent("https://vinhdanh.ite.id.vn/certificate/preview")}`}
                     alt="QR Code"
-                    style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
+                    style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none", backgroundColor: "#fff", padding: "6px", borderRadius: "8px" }}
                   />
                 );
               })()}

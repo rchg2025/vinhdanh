@@ -66,6 +66,7 @@ export default function ApplicationReviewClient({ application, template }: { app
   const [portraitDataUrl, setPortraitDataUrl] = useState<string>("");
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [templateLoading, setTemplateLoading] = useState(false);
+  const [canvasDimensions, setCanvasDimensions] = useState({ w: 1123, h: 794 });
 
   // The public URL that the QR code should point to
   const certViewUrl = `${typeof window !== "undefined" ? window.location.origin : "https://vinhdanh.ite.id.vn"}/certificate/${application.id}`;
@@ -78,7 +79,18 @@ export default function ApplicationReviewClient({ application, template }: { app
     setTemplateLoading(true);
 
     const bgPromise = toDataUrl(template.imageUrl)
-      .then(setBgDataUrl)
+      .then((url) => {
+        setBgDataUrl(url);
+        const img = new window.Image();
+        img.onload = () => {
+          if (img.naturalHeight > img.naturalWidth) {
+            setCanvasDimensions({ w: 794, h: 1123 });
+          } else {
+            setCanvasDimensions({ w: 1123, h: 794 });
+          }
+        };
+        img.src = url;
+      })
       .catch((e) => console.error("bg load failed", e));
 
     // Pre-load static image fields (logo, signature, etc.)
@@ -189,8 +201,7 @@ export default function ApplicationReviewClient({ application, template }: { app
     }
   };
 
-  const CANVAS_W = 1123;
-  const CANVAS_H = 794;
+
   const [previewW, setPreviewW] = useState(800);
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -205,8 +216,8 @@ export default function ApplicationReviewClient({ application, template }: { app
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const scale = previewW / CANVAS_W;
-  const previewH = Math.round(CANVAS_H * scale);
+  const scale = previewW / canvasDimensions.w;
+  const previewH = Math.round(canvasDimensions.h * scale);
 
   return (
     <Card>
@@ -239,8 +250,8 @@ export default function ApplicationReviewClient({ application, template }: { app
                 <div
                   ref={certRef}
                   style={{
-                    width: `${CANVAS_W}px`,
-                    height: `${CANVAS_H}px`,
+                    width: `${canvasDimensions.w}px`,
+                    height: `${canvasDimensions.h}px`,
                     position: "relative",
                     backgroundColor: "#fff",
                     overflow: "hidden",
@@ -319,7 +330,7 @@ export default function ApplicationReviewClient({ application, template }: { app
                         <img
                           src={qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(certViewUrl)}`}
                           alt="QR Code"
-                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                          style={{ width: "100%", height: "100%", objectFit: "contain", backgroundColor: "#fff", padding: "6px", borderRadius: "8px" }}
                         />
                       )}
                     </div>
@@ -447,10 +458,10 @@ export default function ApplicationReviewClient({ application, template }: { app
               <div className="p-6 overflow-auto flex justify-center items-start">
                 {template ? (
                   <>
-                    <div style={{ width: `${800}px`, height: `${Math.round(CANVAS_H * 800 / CANVAS_W)}px`, overflow: "hidden", flexShrink: 0 }}>
-                    <div style={{ transform: `scale(${800 / CANVAS_W})`, transformOrigin: "top left", width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, pointerEvents: "none" }}>
+                    <div style={{ width: `${800}px`, height: `${Math.round(canvasDimensions.h * 800 / canvasDimensions.w)}px`, overflow: "hidden", flexShrink: 0 }}>
+                    <div style={{ transform: `scale(${800 / canvasDimensions.w})`, transformOrigin: "top left", width: `${canvasDimensions.w}px`, height: `${canvasDimensions.h}px`, pointerEvents: "none" }}>
                       <div
-                        style={{ width: `${CANVAS_W}px`, height: `${CANVAS_H}px`, position: "relative", backgroundColor: "#fff", overflow: "hidden" }}
+                        style={{ width: `${canvasDimensions.w}px`, height: `${canvasDimensions.h}px`, position: "relative", backgroundColor: "#fff", overflow: "hidden" }}
                       >
                         {bgDataUrl && (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -496,7 +507,7 @@ export default function ApplicationReviewClient({ application, template }: { app
                               <img
                                 src={qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(certViewUrl)}`}
                                 alt="QR Code"
-                                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                                style={{ width: "100%", height: "100%", objectFit: "contain", backgroundColor: "#fff", padding: "6px", borderRadius: "8px" }}
                               />
                             )}
                           </div>

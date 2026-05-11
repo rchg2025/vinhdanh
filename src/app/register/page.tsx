@@ -124,7 +124,7 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="20110382xx@sv.nsg.edu.vn"
+                placeholder="Nhập email của bạn"
                 value={formData.email}
                 onChange={handleChange}
                 required

@@ -71,7 +71,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="text"
-                  placeholder="201000xxxx@sv.nsg.edu.vn"
+                  placeholder="Nhập tên đăng nhập"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
