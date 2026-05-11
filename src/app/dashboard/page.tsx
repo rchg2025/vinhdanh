@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Trophy, Settings, Clock, Archive, ChevronRight, FileText, ExternalLink } from "lucide-react";
+import { Trophy, Settings, Clock, Archive, ChevronRight, FileText, ExternalLink, Home } from "lucide-react";
 import { HeaderLogoutButton } from "@/components/LogoutButton";
 
 const statusMap: Record<string, { label: string; cls: string; icon: string }> = {
@@ -40,7 +40,13 @@ export default async function DashboardPage() {
             </div>
             <span className="font-bold text-gray-900 text-lg hidden sm:block tracking-tight">Vinh Danh Online</span>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <Link
+              href="/"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Home size={16} /> <span className="hidden sm:inline">Về Trang chủ</span>
+            </Link>
             {session.user.role === "ADMIN" && (
               <Link
                 href="/admin/campaigns"
