@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Users, Library, Plus, Edit, Trash2, X, CalendarIcon, Layers } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Users, Library, Plus, Edit, Trash2, X, CalendarIcon, Layers, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
@@ -35,6 +35,21 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
   // Data forms
   const [unitForm, setUnitForm] = useState({ name: "", description: "" });
   const [classForm, setClassForm] = useState({ name: "", description: "" });
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  const filteredUnits = useMemo(() => {
+    return units.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [units, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredUnits.length / ITEMS_PER_PAGE));
+  const paginatedUnits = filteredUnits.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleOpenUnitModal = (unit?: UnitData) => {
     if (unit) {
@@ -162,13 +177,26 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
         </Button>
       </div>
 
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+          <input
+            type="text"
+            placeholder="Tìm kiếm đơn vị..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+          />
+        </div>
+      </div>
+
       <div className="space-y-6">
-        {units.length === 0 ? (
+        {units.length > 0 && paginatedUnits.length === 0 ? (
            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-500 text-sm">
-             Chưa có đơn vị nào được tạo.
+             Không tìm thấy đơn vị nào phù hợp.
            </div>
         ) : (
-          units.map(unit => (
+          paginatedUnits.map(unit => (
             <div key={unit.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="bg-gray-50/50 border-b border-gray-100 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center gap-3">
@@ -228,6 +256,35 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
           ))
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <div className="text-sm text-gray-500">
+            Hiển thị <span className="font-medium">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> đến <span className="font-medium">{Math.min(currentPage * ITEMS_PER_PAGE, filteredUnits.length)}</span> trong số <span className="font-medium">{filteredUnits.length}</span> đơn vị
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            >
+              Trang trước
+            </Button>
+            <div className="text-sm font-medium px-2">
+              Trang {currentPage} / {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            >
+              Trang sau
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Unit Modal */}
       {isUnitModalOpen && (

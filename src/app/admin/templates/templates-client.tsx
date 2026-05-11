@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, X, Image as ImageIcon, Copy, Check, LayoutTemplate } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Pencil, Trash2, X, Image as ImageIcon, Copy, Check, LayoutTemplate, Search } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,6 +44,21 @@ export default function TemplatesClient() {
     description: "",
     imageUrl: "",
   });
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
+
+  const filteredTemplates = useMemo(() => {
+    return templates.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [templates, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTemplates.length / ITEMS_PER_PAGE));
+  const paginatedTemplates = filteredTemplates.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const fetchTemplates = async () => {
     try {
@@ -182,16 +197,28 @@ export default function TemplatesClient() {
             <p className="text-xs text-gray-500">{templates.length} mẫu đã lưu</p>
           </div>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm text-sm font-medium"
-        >
-          <Plus size={16} /> Thêm mẫu mới
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="Tìm kiếm mẫu giấy khen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+            />
+          </div>
+          <button
+            onClick={() => handleOpenModal()}
+            className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm text-sm font-medium w-full sm:w-auto shrink-0"
+          >
+            <Plus size={16} /> Thêm mẫu mới
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {templates.map((template) => (
+        {paginatedTemplates.map((template) => (
           <div key={template.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all">
             <div className="aspect-[1.414] w-full bg-gray-100 relative border-b border-gray-100 group-hover:opacity-90 transition-opacity">
               {template.imageUrl ? (
@@ -253,16 +280,37 @@ export default function TemplatesClient() {
             </div>
           </div>
         ))}
-        {templates.length === 0 && (
-          <div className="col-span-full py-12 text-center border-2 border-dashed border-gray-200 rounded-xl">
-            <div className="mx-auto w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
-              <ImageIcon className="text-gray-400" size={24} />
-            </div>
-            <h3 className="text-sm font-medium text-gray-900">Chưa có mẫu nào</h3>
-            <p className="text-xs text-gray-500 mt-1">Bấm "Thêm mẫu mới" để tải lên mẫu giấy khen đầu tiên.</p>
+        {templates.length > 0 && paginatedTemplates.length === 0 && (
+          <div className="col-span-full py-12 text-center text-gray-500">
+            Không tìm thấy mẫu giấy khen nào phù hợp.
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm mt-6">
+          <div className="text-sm text-gray-500">
+            Hiển thị <span className="font-medium">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> đến <span className="font-medium">{Math.min(currentPage * ITEMS_PER_PAGE, filteredTemplates.length)}</span> trong số <span className="font-medium">{filteredTemplates.length}</span> mẫu
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50"
+            >
+              Trang trước
+            </button>
+            <span className="text-sm px-2">Trang {currentPage} / {totalPages}</span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50"
+            >
+              Trang sau
+            </button>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
