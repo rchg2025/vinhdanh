@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { User, Shield, CalendarIcon, Plus, Edit, Trash2, X } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { User, Shield, CalendarIcon, Plus, Edit, Trash2, X, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import * as XLSX from "xlsx";
 
 type UnitData = {
   id: string;
@@ -29,6 +30,8 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
   const [users, setUsers] = useState<UserData[]>(initialUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -150,6 +153,65 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = new Uint8Array(event.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Assume row 1 is header: [Tên, Email, MSSV, Mật khẩu]
+        const rows = jsonData.slice(1).filter((row: any) => row.length > 0);
+        
+        const importedUsers = rows.map((row: any) => ({
+          name: row[0]?.toString() || "",
+          email: row[1]?.toString() || "",
+          studentId: row[2]?.toString() || "",
+          password: row[3]?.toString() || "123456", // default password if missing
+        })).filter(u => u.email); // Must have email
+
+        if (importedUsers.length === 0) {
+          toast.error("Không tìm thấy dữ liệu hợp lệ trong file Excel.");
+          setIsImporting(false);
+          return;
+        }
+
+        const res = await fetch("/api/users/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ users: importedUsers })
+        });
+
+        const result = await res.json();
+        
+        if (!res.ok) throw new Error(result.error || "Có lỗi xảy ra khi import");
+        
+        if (result.success) {
+          toast.success(result.message);
+          if (result.errors?.length > 0) {
+            console.warn("Import errors:", result.errors);
+            toast.warning(`Có ${result.errors.length} dòng bị lỗi (trùng email, v.v.). Xem console log để biết chi tiết.`);
+          }
+          // Prepend new users to UI
+          setUsers([...(result.importedUsers.map((u: any) => ({ ...u, _count: { applications: 0 } }))), ...users]);
+        }
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setIsImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -157,9 +219,27 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Thành viên</h1>
           <p className="text-gray-500 mt-1">Xem, thêm, sửa và xóa tài khoản người dùng</p>
         </div>
-        <Button onClick={() => handleOpenModal()} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 rounded-lg">
-          <Plus size={18} /> Thêm Tài Khoản
-        </Button>
+        <div className="flex gap-2">
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+          />
+          <Button 
+            variant="outline" 
+            onClick={() => fileInputRef.current?.click()} 
+            className="bg-white gap-2 rounded-lg text-gray-700"
+            disabled={isImporting}
+          >
+            {isImporting ? <span className="animate-spin text-xl">↻</span> : <Upload size={18} />}
+            {isImporting ? "Đang xử lý..." : "Import Excel"}
+          </Button>
+          <Button onClick={() => handleOpenModal()} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 rounded-lg">
+            <Plus size={18} /> Thêm Tài Khoản
+          </Button>
+        </div>
       </div>
 
       {/* Filters and Search */}
