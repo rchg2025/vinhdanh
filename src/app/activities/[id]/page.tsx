@@ -5,11 +5,12 @@ import { notFound } from "next/navigation";
 import RegisterButton from "./RegisterButton";
 import Link from "next/link";
 
-export default async function ActivityDetailPage({ params }: { params: { id: string } }) {
+export default async function ActivityDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   
   const activity = await prisma.activity.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!activity) {

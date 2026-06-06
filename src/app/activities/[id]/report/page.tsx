@@ -5,7 +5,8 @@ import { notFound, redirect } from "next/navigation";
 import ReportForm from "./ReportForm";
 import Link from "next/link";
 
-export default async function ActivityReportPage({ params }: { params: { id: string } }) {
+export default async function ActivityReportPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   
   if (!session) {
@@ -13,7 +14,7 @@ export default async function ActivityReportPage({ params }: { params: { id: str
   }
 
   const activity = await prisma.activity.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!activity) {

@@ -2,9 +2,10 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 
-export default async function AdminActivityReportsPage({ params }: { params: { id: string } }) {
+export default async function AdminActivityReportsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const activity = await prisma.activity.findUnique({
-    where: { id: params.id }
+    where: { id }
   });
 
   if (!activity) {
@@ -12,7 +13,7 @@ export default async function AdminActivityReportsPage({ params }: { params: { i
   }
 
   const reports = await prisma.activityReport.findMany({
-    where: { activityId: params.id },
+    where: { activityId: id },
     orderBy: { createdAt: 'desc' },
     include: {
       user: true,
