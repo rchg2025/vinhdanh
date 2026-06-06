@@ -18,7 +18,7 @@ export default async function AdminActivityReportsPage({ params }: { params: Pro
     include: {
       user: true,
     }
-  });
+  }).catch(() => []);
 
   return (
     <div className="space-y-6">

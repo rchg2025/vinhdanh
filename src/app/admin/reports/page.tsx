@@ -9,7 +9,7 @@ export default async function AdminReportsPage() {
       user: true,
       activity: true,
     }
-  });
+  }).catch(() => []);
 
   return (
     <div className="space-y-6">

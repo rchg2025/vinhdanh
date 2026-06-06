@@ -8,7 +8,7 @@ export default async function ActivitiesPage() {
   
   const activities = await prisma.activity.findMany({
     orderBy: { createdAt: 'desc' },
-  });
+  }).catch(() => []);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

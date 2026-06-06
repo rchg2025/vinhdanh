@@ -31,7 +31,7 @@ export default async function DashboardPage() {
       where: { userId: session.user.id },
       include: { activity: true },
       orderBy: { createdAt: "desc" },
-    }),
+    }).catch(() => []),
   ]);
 
   return (

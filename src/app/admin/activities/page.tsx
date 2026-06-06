@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 export default async function AdminActivitiesPage() {
   const activities = await prisma.activity.findMany({
     orderBy: { createdAt: 'desc' },
-  });
+  }).catch(() => []);
 
   return (
     <div className="space-y-6">
