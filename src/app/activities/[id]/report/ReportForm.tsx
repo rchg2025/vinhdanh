@@ -11,7 +11,7 @@ import { Upload, FileText, Send } from "lucide-react";
 export default function ReportForm({ activityId }: { activityId: string }) {
   const router = useRouter();
   const [content, setContent] = useState("");
-  const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -23,8 +23,8 @@ export default function ReportForm({ activityId }: { activityId: string }) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setEvidenceFile(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setEvidenceFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]);
     }
   };
 
@@ -84,11 +84,14 @@ export default function ReportForm({ activityId }: { activityId: string }) {
     try {
       let evidenceUrls: string[] = [];
 
-      if (evidenceFile) {
+      if (evidenceFiles.length > 0) {
         setUploading(true);
-        toast.info("Đang tải file minh chứng lên Google Drive...");
-        const res = await handleUpload(evidenceFile);
-        evidenceUrls.push(res.url);
+        toast.info(`Đang tải lên ${evidenceFiles.length} file đính kèm...`);
+        // Upload sequentially to avoid overloading
+        for (const file of evidenceFiles) {
+          const res = await handleUpload(file);
+          evidenceUrls.push(res.url);
+        }
       }
 
       setUploading(false);
@@ -150,9 +153,20 @@ export default function ReportForm({ activityId }: { activityId: string }) {
             <Upload className="mx-auto h-10 w-10 text-gray-400" />
             <div className="flex text-sm text-gray-600 justify-center">
               <span className="font-medium text-indigo-600 hover:text-indigo-500 px-2 py-1">Kéo thả hoặc tải file lên</span>
-              <input id="evidence" name="evidence" type="file" className="hidden" onChange={(e) => e.target.files && setEvidenceFile(e.target.files[0])} />
+              <input id="evidence" name="evidence" type="file" multiple className="hidden" onChange={(e) => {
+                if (e.target.files) {
+                  setEvidenceFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                }
+              }} />
             </div>
-            {evidenceFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px] mx-auto">{evidenceFile.name}</p> : <p className="text-xs text-gray-400">Dung lượng tải lên tối đa 10MB</p>}
+            {evidenceFiles.length > 0 ? (
+              <div className="text-xs text-green-600 font-medium truncate max-w-[200px] mx-auto text-center space-y-1">
+                <p>Đã chọn {evidenceFiles.length} file</p>
+                {evidenceFiles.map((f, i) => <p key={i} className="truncate" title={f.name}>{f.name}</p>)}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">Dung lượng tải lên tối đa 10MB mỗi file</p>
+            )}
           </div>
         </div>
       </div>
