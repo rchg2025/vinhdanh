@@ -3,10 +3,12 @@ import { Users, Award, FileText, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 export default async function AdminDashboardPage() {
-  const [totalUsers, totalCampaigns, totalApplications] = await Promise.all([
+  const [totalUsers, totalCampaigns, totalApplications, totalPrograms, totalReports] = await Promise.all([
     prisma.user.count(),
     prisma.campaign.count(),
     prisma.application.count(),
+    prisma.activityProgram.count(),
+    prisma.activityReport.count(),
   ]);
 
   const recentApplications = await prisma.application.findMany({
@@ -26,7 +28,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
             <Users size={24} />
@@ -54,6 +56,26 @@ export default async function AdminDashboardPage() {
           <div>
             <p className="text-sm font-medium text-gray-500">Hồ sơ đã nộp</p>
             <h3 className="text-2xl font-bold text-gray-900">{totalApplications}</h3>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+            <Award size={24} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Chương trình</p>
+            <h3 className="text-2xl font-bold text-gray-900">{totalPrograms}</h3>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
+            <TrendingUp size={24} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Báo cáo hoạt động</p>
+            <h3 className="text-2xl font-bold text-gray-900">{totalReports}</h3>
           </div>
         </div>
       </div>
