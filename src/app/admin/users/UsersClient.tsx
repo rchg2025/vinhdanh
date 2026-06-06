@@ -240,7 +240,7 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
           </Button>
           <input
             type="file"
-            accept=".xlsx, .xls"
+            accept=".xlsx, .xls, .csv"
             className="hidden"
             ref={fileInputRef}
             onChange={handleFileUpload}
