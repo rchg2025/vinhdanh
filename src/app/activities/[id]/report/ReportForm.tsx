@@ -80,9 +80,8 @@ export default function ReportForm({ activityId }: { activityId: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      let evidenceUrls: string[] = [];
+      let evidenceUrls: any[] = [];
 
       if (evidenceFiles.length > 0) {
         setUploading(true);
@@ -90,7 +89,7 @@ export default function ReportForm({ activityId }: { activityId: string }) {
         // Upload sequentially to avoid overloading
         for (const file of evidenceFiles) {
           const res = await handleUpload(file);
-          evidenceUrls.push(res.url);
+          evidenceUrls.push({ url: res.url, name: file.name });
         }
       }
 

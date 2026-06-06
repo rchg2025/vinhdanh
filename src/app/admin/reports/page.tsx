@@ -5,6 +5,7 @@ import AdminSearchFilter from "@/components/admin/AdminSearchFilter";
 import AdminPagination from "@/components/admin/AdminPagination";
 import ExportExcelButton from "@/components/admin/ExportExcelButton";
 import AdminActionButtons from "@/components/admin/AdminActionButtons";
+import DownloadAllButton from "./DownloadAllButton";
 
 export default async function AdminReportsPage({
   searchParams,
@@ -81,18 +82,26 @@ export default async function AdminReportsPage({
                   <td className="px-6 py-4 font-medium text-indigo-600">{report.activity.title}</td>
                   <td className="px-6 py-4 text-sm max-w-xs truncate">{report.content}</td>
                   <td className="px-6 py-4">
-                    {evidenceFiles.map((url, i) => (
-                      <a 
-                        key={i} 
-                        href={url} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="text-blue-500 hover:underline flex items-center gap-1 text-sm"
-                      >
-                        File {i + 1} <ExternalLink size={12} />
-                      </a>
-                    ))}
+                    <div className="flex flex-col items-start gap-1">
+                      {evidenceFiles.map((fileObj: any, i: number) => {
+                        const url = typeof fileObj === 'string' ? fileObj : fileObj.url;
+                        const name = typeof fileObj === 'string' ? `File ${i + 1}` : fileObj.name;
+                        return (
+                          <a 
+                            key={i} 
+                            href={url} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 text-sm w-full truncate max-w-[200px]"
+                            title={name}
+                          >
+                            <ExternalLink size={12} className="shrink-0" /> <span className="truncate">{name}</span>
+                          </a>
+                        );
+                      })}
+                    </div>
                     {evidenceFiles.length === 0 && <span className="text-gray-400 text-sm">Không có</span>}
+                    <DownloadAllButton files={evidenceFiles} />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {new Date(report.createdAt).toLocaleDateString("vi-VN")}
