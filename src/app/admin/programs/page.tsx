@@ -4,17 +4,44 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus, ListTree } from "lucide-react";
+import AdminSearchFilter from "@/components/admin/AdminSearchFilter";
+import AdminPagination from "@/components/admin/AdminPagination";
+import ExportExcelButton from "@/components/admin/ExportExcelButton";
+import AdminActionButtons from "@/components/admin/AdminActionButtons";
 
-export default async function AdminProgramsPage() {
+export default async function AdminProgramsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") redirect("/");
 
-  const programs = await prisma.activityProgram.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      stages: true
-    }
-  }).catch(() => []);
+  const resolvedParams = await searchParams;
+  const query = typeof resolvedParams.query === 'string' ? resolvedParams.query : '';
+  const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page) : 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const where = query ? {
+    OR: [
+      { title: { contains: query, mode: 'insensitive' as const } },
+      { description: { contains: query, mode: 'insensitive' as const } }
+    ]
+  } : {};
+
+  const [programs, total] = await Promise.all([
+    prisma.activityProgram.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+      include: { stages: true }
+    }).catch(() => []),
+    prisma.activityProgram.count({ where }).catch(() => 0)
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-6">
@@ -25,12 +52,19 @@ export default async function AdminProgramsPage() {
             Tạo các Chương trình lớn (VD: Mùa hè xanh) và thêm các Chặng vào trong chương trình.
           </p>
         </div>
-        <Link
-          href="/admin/programs/new"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
-        >
-          <Plus size={16} /> Thêm chương trình mới
-        </Link>
+        <div className="flex gap-3">
+          <ExportExcelButton endpoint="/api/export/programs" filename="Danh_sach_Chuong_trinh" />
+          <Link
+            href="/admin/programs/new"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+          >
+            <Plus size={16} /> Thêm chương trình
+          </Link>
+        </div>
+      </div>
+
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        <AdminSearchFilter placeholder="Tìm theo tên chương trình..." />
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -60,13 +94,18 @@ export default async function AdminProgramsPage() {
                   <td className="px-6 py-4 font-medium text-indigo-600">
                     {prog.stages.length} chặng
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                     <Link
                       href={`/admin/programs/${prog.id}/stages`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition font-medium text-xs border border-emerald-200"
                     >
-                      <ListTree size={14} /> Quản lý các Chặng
+                      <ListTree size={14} /> Chặng
                     </Link>
+                    <AdminActionButtons 
+                      editUrl={`/admin/programs/${prog.id}/edit`} 
+                      deleteEndpoint={`/api/programs/${prog.id}`} 
+                      itemName="chương trình này"
+                    />
                   </td>
                 </tr>
               ))
@@ -74,6 +113,8 @@ export default async function AdminProgramsPage() {
           </tbody>
         </table>
       </div>
+
+      <AdminPagination totalPages={totalPages} />
     </div>
   );
 }
