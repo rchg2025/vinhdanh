@@ -40,10 +40,10 @@ export default async function AdminActivityReportsPage({ params }: { params: Pro
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-6 py-3 font-semibold text-gray-700 text-sm">Người báo cáo</th>
-              <th className="px-6 py-3 font-semibold text-gray-700 text-sm">Nội dung</th>
-              <th className="px-6 py-3 font-semibold text-gray-700 text-sm">Minh chứng</th>
-              <th className="px-6 py-3 font-semibold text-gray-700 text-sm">Thời gian</th>
+              <th className="px-3 py-2 font-semibold text-gray-700 text-xs">Người báo cáo</th>
+              <th className="px-3 py-2 font-semibold text-gray-700 text-xs">Nội dung</th>
+              <th className="px-3 py-2 font-semibold text-gray-700 text-xs">Minh chứng</th>
+              <th className="px-3 py-2 font-semibold text-gray-700 text-xs">Thời gian</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -52,25 +52,25 @@ export default async function AdminActivityReportsPage({ params }: { params: Pro
               
               return (
                 <tr key={report.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="font-medium">{report.user.name}</div>
-                    <div className="text-xs text-gray-500">{report.user.email}</div>
+                  <td className="px-3 py-2">
+                    <div className="font-medium text-xs">{report.user.name}</div>
+                    <div className="text-[10px] text-gray-500">{report.user.email}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm">{report.content}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 py-2 text-xs">{report.content}</td>
+                  <td className="px-3 py-2">
                     {evidenceFiles.map((url, i) => (
                       <a 
                         key={i} 
                         href={url} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="text-blue-500 hover:underline flex items-center gap-1 text-sm mb-1"
+                        className="text-blue-500 hover:underline flex items-center gap-1 text-[11px] mb-1"
                       >
-                        Xem file <ExternalLink size={12} />
+                        Xem file <ExternalLink size={10} />
                       </a>
                     ))}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-3 py-2 text-xs text-gray-500">
                     {new Date(report.createdAt).toLocaleDateString("vi-VN")}
                   </td>
                 </tr>
@@ -78,7 +78,7 @@ export default async function AdminActivityReportsPage({ params }: { params: Pro
             })}
             {reports.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={4} className="px-3 py-4 text-center text-xs text-gray-500">
                   Chưa có báo cáo nào cho hoạt động này.
                 </td>
               </tr>

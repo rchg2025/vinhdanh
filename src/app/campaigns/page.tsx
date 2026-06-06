@@ -15,10 +15,10 @@ export default async function CampaignsPage() {
     <div className="min-h-screen bg-gray-50 pb-12">
       <PublicHeader />
 
-      <main className="max-w-5xl mx-auto px-4 md:px-8 mt-8">
+      <main className="w-full mx-auto px-4 md:px-8 mt-8">
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Tất Cả Các Đợt Xét Duyệt</h1>
-          <p className="text-gray-500 max-w-2xl mx-auto">
+          <p className="text-gray-500 w-full mx-auto">
             Xem danh sách các đợt vinh danh và xét duyệt danh hiệu sinh viên. Hãy chọn đợt xét duyệt phù hợp đang mở cổng để nộp hồ sơ.
           </p>
         </div>

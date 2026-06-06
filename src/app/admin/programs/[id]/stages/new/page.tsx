@@ -47,7 +47,7 @@ export default function NewStagePage({ params }: { params: Promise<{ id: string 
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/admin/programs/${id}/stages`} className="p-2 hover:bg-gray-100 rounded-full transition">
           <ArrowLeft size={20} className="text-gray-600" />

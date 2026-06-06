@@ -36,7 +36,7 @@ export default async function ActivityReportPage({ params }: { params: Promise<{
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <PublicHeader />
-        <div className="container mx-auto px-4 py-8 max-w-3xl text-center flex-1">
+        <div className="container mx-auto px-4 py-8 w-full text-center flex-1">
           <h1 className="text-2xl font-bold mb-4">Bạn chưa đăng ký tham gia hoạt động này</h1>
           <Link href={`/activities/${activity.id}`} className="text-blue-600 hover:underline">
             Quay lại trang chi tiết hoạt động để đăng ký
@@ -49,7 +49,7 @@ export default async function ActivityReportPage({ params }: { params: Promise<{
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <PublicHeader />
-      <div className="container mx-auto px-4 py-8 max-w-3xl flex-1">
+      <div className="container mx-auto px-4 py-8 w-full flex-1">
         <Link href={`/activities/${activity.id}`} className="text-blue-600 hover:underline mb-6 inline-block">
           &larr; Quay lại chi tiết
         </Link>

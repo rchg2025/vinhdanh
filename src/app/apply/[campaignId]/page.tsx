@@ -162,7 +162,7 @@ export default function ApplicationPage() {
     <div className="min-h-screen bg-gray-50 pb-12">
       <PublicHeader />
 
-      <main className="max-w-3xl mx-auto px-4 md:px-8 mt-8">
+      <main className="w-full mx-auto px-4 md:px-8 mt-8">
         <Link href="/dashboard" className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-4 font-medium transition-colors">
           <ArrowLeft size={16} /> Quay lại trang quản lý
         </Link>

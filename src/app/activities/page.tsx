@@ -38,7 +38,7 @@ export default async function ActivitiesPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <PublicHeader />
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
+      <main className="flex-1 container mx-auto px-4 py-8 w-full">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-10 text-center uppercase tracking-tight">Hoạt động tình nguyện</h1>
       
       {programs.length === 0 && standaloneActivities.length === 0 && (

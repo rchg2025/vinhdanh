@@ -140,7 +140,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
   if (fetching) return <div className="p-8 text-center text-gray-500">Đang tải dữ liệu...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/programs" className="p-2 hover:bg-gray-100 rounded-full transition">
           <ArrowLeft size={20} className="text-gray-600" />

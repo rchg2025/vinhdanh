@@ -82,7 +82,7 @@ export default async function DashboardPage() {
           <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none overflow-hidden">
             <img src="/logo.png" alt="" className="w-[300px] h-[300px] object-contain grayscale" />
           </div>
-          <div className="relative z-10 max-w-2xl">
+          <div className="relative z-10 w-full">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
               Chào mừng trở lại, {session.user.name} 👋
             </h1>

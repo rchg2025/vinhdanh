@@ -120,7 +120,7 @@ export default function NewActivityPage() {
   };
 
   return (
-    <div className="max-w-2xl bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+    <div className="w-full bg-white p-8 rounded-xl shadow-sm border border-gray-200">
       <h1 className="text-2xl font-bold mb-6">Tạo Hoạt động mới</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">

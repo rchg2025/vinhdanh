@@ -85,7 +85,7 @@ export default async function Home() {
 
       {/* Hero Section */}
       <main className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-20 md:py-32">
-        <div className="glass-card px-8 md:px-16 py-12 md:py-16 max-w-3xl mx-auto">
+        <div className="glass-card px-8 md:px-16 py-12 md:py-16 w-full mx-auto">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-sm font-medium text-gray-700 dark:text-gray-200 mb-8">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -123,7 +123,7 @@ export default async function Home() {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mx-auto mt-16">
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform cursor-default">
             <div className="text-4xl mb-4">📋</div>
             <h3 className="font-bold text-lg text-gray-800 mb-2">Nộp hồ sơ Online</h3>
@@ -145,7 +145,7 @@ export default async function Home() {
       {/* Active Campaigns */}
       {activeCampaigns.length > 0 && (
         <section className="relative z-10 px-6 md:px-12 pb-16">
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full mx-auto">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">📢 Các Đợt Xét Duyệt Đang Mở</h2>
               <p className="text-white/80">Tham gia nộp hồ sơ xét duyệt các danh hiệu cao quý của nhà trường</p>
@@ -159,7 +159,7 @@ export default async function Home() {
       {/* Vinh danh gương sáng */}
       {honorees.length > 0 && (
         <section className="relative z-10 px-6 md:px-12 pb-16">
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full mx-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">🌟 Vinh danh gương sáng</h2>
