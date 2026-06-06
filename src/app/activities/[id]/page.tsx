@@ -61,15 +61,27 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
           />
         )}
         
-        <div className="flex gap-6 text-sm text-gray-600 mb-8 pb-6 border-b">
+        <div className="flex flex-wrap gap-6 text-sm text-gray-600 mb-8 pb-6 border-b">
           <div>
-            <strong className="block text-gray-800">Ngày bắt đầu</strong>
+            <strong className="block text-gray-800">Bắt đầu sự kiện</strong>
             {new Date(activity.startDate).toLocaleDateString("vi-VN")}
           </div>
           <div>
-            <strong className="block text-gray-800">Ngày kết thúc</strong>
+            <strong className="block text-gray-800">Kết thúc sự kiện</strong>
             {new Date(activity.endDate).toLocaleDateString("vi-VN")}
           </div>
+          {(activity.registrationStartDate || activity.registrationEndDate) && (
+            <>
+              <div>
+                <strong className="block text-emerald-700">Mở đăng ký</strong>
+                {activity.registrationStartDate ? new Date(activity.registrationStartDate).toLocaleDateString("vi-VN") : "Bây giờ"}
+              </div>
+              <div>
+                <strong className="block text-emerald-700">Đóng đăng ký</strong>
+                {activity.registrationEndDate ? new Date(activity.registrationEndDate).toLocaleDateString("vi-VN") : "Không giới hạn"}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="prose max-w-none mb-8">
@@ -113,10 +125,21 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
                     Báo cáo hoạt động
                   </Link>
                 ) : (
-                  <RegisterButton 
-                    activityId={activity.id} 
-                    isFull={activity.maxRegistrations !== null && activity.registrations.length >= activity.maxRegistrations}
-                  />
+                  (() => {
+                    const now = new Date();
+                    const isRegistrationOpen = (!activity.registrationStartDate || now >= new Date(activity.registrationStartDate)) && 
+                                             (!activity.registrationEndDate || now <= new Date(activity.registrationEndDate));
+                    return isRegistrationOpen ? (
+                      <RegisterButton 
+                        activityId={activity.id} 
+                        isFull={activity.maxRegistrations !== null && activity.registrations.length >= activity.maxRegistrations}
+                      />
+                    ) : (
+                      <div className="px-6 py-3 rounded-lg font-semibold bg-gray-200 text-gray-500 text-center whitespace-nowrap">
+                        {(!activity.registrationStartDate || now >= new Date(activity.registrationStartDate)) ? "Đã đóng đăng ký" : "Chưa mở đăng ký"}
+                      </div>
+                    );
+                  })()
                 )}
               </div>
             )}

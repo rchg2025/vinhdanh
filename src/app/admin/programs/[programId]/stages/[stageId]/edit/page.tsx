@@ -19,6 +19,10 @@ export default function EditStagePage({ params }: { params: Promise<{ programId:
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    startDate: "",
+    endDate: "",
+    registrationStartDate: "",
+    registrationEndDate: "",
   });
 
   useEffect(() => {
@@ -31,6 +35,10 @@ export default function EditStagePage({ params }: { params: Promise<{ programId:
           setFormData({
             title: stage.title,
             description: stage.description || "",
+            startDate: stage.startDate ? new Date(stage.startDate).toISOString().slice(0, 16) : "",
+            endDate: stage.endDate ? new Date(stage.endDate).toISOString().slice(0, 16) : "",
+            registrationStartDate: stage.registrationStartDate ? new Date(stage.registrationStartDate).toISOString().slice(0, 16) : "",
+            registrationEndDate: stage.registrationEndDate ? new Date(stage.registrationEndDate).toISOString().slice(0, 16) : "",
           });
         } else {
           toast.error("Không tìm thấy chặng");
@@ -97,6 +105,50 @@ export default function EditStagePage({ params }: { params: Promise<{ programId:
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="startDate">Ngày bắt đầu diễn ra</Label>
+            <Input
+              id="startDate"
+              type="datetime-local"
+              value={formData.startDate}
+              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="endDate">Ngày kết thúc diễn ra</Label>
+            <Input
+              id="endDate"
+              type="datetime-local"
+              value={formData.endDate}
+              onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="registrationStartDate">Ngày mở đăng ký</Label>
+            <Input
+              id="registrationStartDate"
+              type="datetime-local"
+              value={formData.registrationStartDate}
+              onChange={(e) => setFormData({ ...formData, registrationStartDate: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="registrationEndDate">Ngày đóng đăng ký</Label>
+            <Input
+              id="registrationEndDate"
+              type="datetime-local"
+              value={formData.registrationEndDate}
+              onChange={(e) => setFormData({ ...formData, registrationEndDate: e.target.value })}
+            />
+          </div>
         </div>
 
         <Button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700">

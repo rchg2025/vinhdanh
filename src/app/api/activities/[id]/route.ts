@@ -65,6 +65,8 @@ export async function PUT(
         imageUrl: data.imageUrl,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
+        registrationStartDate: data.registrationStartDate ? new Date(data.registrationStartDate) : null,
+        registrationEndDate: data.registrationEndDate ? new Date(data.registrationEndDate) : null,
         stageId: data.stageId || null,
         maxRegistrations: data.maxRegistrations ? parseInt(data.maxRegistrations) : null,
       },

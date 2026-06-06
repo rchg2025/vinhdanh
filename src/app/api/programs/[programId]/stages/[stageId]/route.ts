@@ -43,6 +43,10 @@ export async function PUT(
       data: {
         title: data.title,
         description: data.description,
+        startDate: data.startDate ? new Date(data.startDate) : null,
+        endDate: data.endDate ? new Date(data.endDate) : null,
+        registrationStartDate: data.registrationStartDate ? new Date(data.registrationStartDate) : null,
+        registrationEndDate: data.registrationEndDate ? new Date(data.registrationEndDate) : null,
       },
     });
 

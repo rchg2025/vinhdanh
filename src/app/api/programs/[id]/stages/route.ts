@@ -15,12 +15,16 @@ export async function POST(
 
     const { id: programId } = await params;
     const data = await request.json();
-    const { title, description } = data;
+    const { title, description, startDate, endDate, registrationStartDate, registrationEndDate } = data;
 
     const stage = await prisma.activityStage.create({
       data: {
         title,
         description,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        registrationStartDate: registrationStartDate ? new Date(registrationStartDate) : null,
+        registrationEndDate: registrationEndDate ? new Date(registrationEndDate) : null,
         programId,
       },
     });

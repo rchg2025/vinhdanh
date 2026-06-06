@@ -31,6 +31,8 @@ export default async function ActivitiesPage() {
     include: { registrations: true }
   }).catch(() => []);
 
+  const now = new Date();
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <PublicHeader />
@@ -78,8 +80,11 @@ export default async function ActivitiesPage() {
                         <div key={activity.id} className="bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex-1">
                             <h4 className="font-bold text-gray-800 mb-1 leading-tight">{activity.title}</h4>
-                            <div className="flex items-center gap-4 text-xs font-medium text-gray-500">
-                              <span>Bắt đầu: {new Date(activity.startDate).toLocaleDateString("vi-VN")}</span>
+                            <div className="flex flex-col gap-1 text-xs font-medium text-gray-500">
+                              <span>Sự kiện: {new Date(activity.startDate).toLocaleDateString("vi-VN")} - {new Date(activity.endDate).toLocaleDateString("vi-VN")}</span>
+                              {(activity.registrationStartDate || activity.registrationEndDate) && (
+                                <span className="text-emerald-600">Đăng ký: {activity.registrationStartDate ? new Date(activity.registrationStartDate).toLocaleDateString("vi-VN") : "Bây giờ"} - {activity.registrationEndDate ? new Date(activity.registrationEndDate).toLocaleDateString("vi-VN") : "Không giới hạn"}</span>
+                              )}
                             </div>
                           </div>
                           
@@ -94,12 +99,25 @@ export default async function ActivitiesPage() {
                                   {activity.registrations.length} <span className="text-gray-400 font-medium">Lượt</span>
                                 </div>
                               )}
-                              <Link 
-                                href={`/activities/${activity.id}`} 
-                                className="text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap"
-                              >
-                                Xem & Đăng ký
-                              </Link>
+                              {(() => {
+                                const isRegistrationOpen = (!activity.registrationStartDate || now >= new Date(activity.registrationStartDate)) && 
+                                                         (!activity.registrationEndDate || now <= new Date(activity.registrationEndDate));
+                                return isRegistrationOpen ? (
+                                  <Link 
+                                    href={`/activities/${activity.id}`} 
+                                    className="text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap"
+                                  >
+                                    Xem & Đăng ký
+                                  </Link>
+                                ) : (
+                                  <Link 
+                                    href={`/activities/${activity.id}`} 
+                                    className="text-sm font-bold text-gray-500 bg-gray-200 px-4 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap"
+                                  >
+                                    Đã đóng đăng ký
+                                  </Link>
+                                );
+                              })()}
                             </div>
                           </div>
                         </div>
@@ -131,8 +149,13 @@ export default async function ActivitiesPage() {
                   <div className="flex-1">
                     <h4 className="font-bold text-gray-900 text-lg mb-2">{activity.title}</h4>
                     <p className="text-sm text-gray-500 line-clamp-2 mb-3">{activity.description}</p>
-                    <div className="flex items-center gap-4 text-xs font-medium text-gray-500">
-                      <span className="bg-gray-100 px-2 py-1 rounded">Bắt đầu: {new Date(activity.startDate).toLocaleDateString("vi-VN")}</span>
+                    <div className="flex flex-col gap-1 text-xs font-medium text-gray-500">
+                      <span className="bg-gray-100 px-2 py-1 rounded inline-block w-fit">Sự kiện: {new Date(activity.startDate).toLocaleDateString("vi-VN")} - {new Date(activity.endDate).toLocaleDateString("vi-VN")}</span>
+                      {(activity.registrationStartDate || activity.registrationEndDate) && (
+                        <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded inline-block w-fit">
+                          Đăng ký: {activity.registrationStartDate ? new Date(activity.registrationStartDate).toLocaleDateString("vi-VN") : "Bây giờ"} - {activity.registrationEndDate ? new Date(activity.registrationEndDate).toLocaleDateString("vi-VN") : "Không giới hạn"}
+                        </span>
+                      )}
                     </div>
                   </div>
                   
@@ -146,12 +169,25 @@ export default async function ActivitiesPage() {
                         {activity.registrations.length} <span className="font-medium opacity-70">Lượt</span>
                       </div>
                     )}
-                    <Link 
-                      href={`/activities/${activity.id}`} 
-                      className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-lg transition-colors shadow-sm"
-                    >
-                      Xem chi tiết
-                    </Link>
+                    {(() => {
+                      const isRegistrationOpen = (!activity.registrationStartDate || now >= new Date(activity.registrationStartDate)) && 
+                                               (!activity.registrationEndDate || now <= new Date(activity.registrationEndDate));
+                      return isRegistrationOpen ? (
+                        <Link 
+                          href={`/activities/${activity.id}`} 
+                          className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-lg transition-colors shadow-sm"
+                        >
+                          Xem chi tiết
+                        </Link>
+                      ) : (
+                        <Link 
+                          href={`/activities/${activity.id}`} 
+                          className="text-sm font-bold text-gray-500 bg-gray-200 px-5 py-2.5 rounded-lg transition-colors shadow-sm"
+                        >
+                          Đã đóng đăng ký
+                        </Link>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

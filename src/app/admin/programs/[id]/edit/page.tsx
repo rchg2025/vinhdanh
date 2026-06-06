@@ -21,6 +21,8 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
     description: "",
     startDate: "",
     endDate: "",
+    registrationStartDate: "",
+    registrationEndDate: "",
   });
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -38,6 +40,8 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
             description: prog.description || "",
             startDate: new Date(prog.startDate).toISOString().slice(0, 16),
             endDate: new Date(prog.endDate).toISOString().slice(0, 16),
+            registrationStartDate: prog.registrationStartDate ? new Date(prog.registrationStartDate).toISOString().slice(0, 16) : "",
+            registrationEndDate: prog.registrationEndDate ? new Date(prog.registrationEndDate).toISOString().slice(0, 16) : "",
           });
           setExistingImageUrl(prog.imageUrl);
         } else {
@@ -216,6 +220,28 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
               required
               value={formData.endDate}
               onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="registrationStartDate">Ngày mở đăng ký</Label>
+            <Input
+              id="registrationStartDate"
+              type="datetime-local"
+              value={formData.registrationStartDate}
+              onChange={(e) => setFormData({ ...formData, registrationStartDate: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="registrationEndDate">Ngày đóng đăng ký</Label>
+            <Input
+              id="registrationEndDate"
+              type="datetime-local"
+              value={formData.registrationEndDate}
+              onChange={(e) => setFormData({ ...formData, registrationEndDate: e.target.value })}
             />
           </div>
         </div>

@@ -17,6 +17,10 @@ export default function NewStagePage({ params }: { params: Promise<{ id: string 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    startDate: "",
+    endDate: "",
+    registrationStartDate: "",
+    registrationEndDate: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,6 +82,50 @@ export default function NewStagePage({ params }: { params: Promise<{ id: string 
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Nhập mô tả cho chặng này..."
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="startDate">Ngày bắt đầu diễn ra</Label>
+            <Input
+              id="startDate"
+              type="datetime-local"
+              value={formData.startDate}
+              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="endDate">Ngày kết thúc diễn ra</Label>
+            <Input
+              id="endDate"
+              type="datetime-local"
+              value={formData.endDate}
+              onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="registrationStartDate">Ngày mở đăng ký</Label>
+            <Input
+              id="registrationStartDate"
+              type="datetime-local"
+              value={formData.registrationStartDate}
+              onChange={(e) => setFormData({ ...formData, registrationStartDate: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="registrationEndDate">Ngày đóng đăng ký</Label>
+            <Input
+              id="registrationEndDate"
+              type="datetime-local"
+              value={formData.registrationEndDate}
+              onChange={(e) => setFormData({ ...formData, registrationEndDate: e.target.value })}
+            />
+          </div>
         </div>
 
         <Button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700">

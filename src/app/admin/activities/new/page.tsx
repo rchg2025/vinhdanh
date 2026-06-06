@@ -18,6 +18,8 @@ export default function NewActivityPage() {
     description: "",
     startDate: "",
     endDate: "",
+    registrationStartDate: "",
+    registrationEndDate: "",
     stageId: "",
     maxRegistrations: "",
   });
@@ -200,23 +202,44 @@ export default function NewActivityPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="startDate">Ngày bắt đầu</Label>
+            <Label htmlFor="startDate">Ngày bắt đầu diễn ra</Label>
             <Input
               id="startDate"
-              type="date"
+              type="datetime-local"
               required
               value={formData.startDate}
               onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="endDate">Ngày kết thúc</Label>
+            <Label htmlFor="endDate">Ngày kết thúc diễn ra</Label>
             <Input
               id="endDate"
-              type="date"
+              type="datetime-local"
               required
               value={formData.endDate}
               onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="registrationStartDate">Ngày mở đăng ký</Label>
+            <Input
+              id="registrationStartDate"
+              type="datetime-local"
+              value={formData.registrationStartDate}
+              onChange={(e) => setFormData({ ...formData, registrationStartDate: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="registrationEndDate">Ngày đóng đăng ký</Label>
+            <Input
+              id="registrationEndDate"
+              type="datetime-local"
+              value={formData.registrationEndDate}
+              onChange={(e) => setFormData({ ...formData, registrationEndDate: e.target.value })}
             />
           </div>
         </div>

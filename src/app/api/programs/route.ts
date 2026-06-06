@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    const { title, description, imageUrl, startDate, endDate } = data;
+    const { title, description, imageUrl, startDate, endDate, registrationStartDate, registrationEndDate } = data;
 
     const program = await prisma.activityProgram.create({
       data: {
@@ -20,6 +20,8 @@ export async function POST(request: Request) {
         imageUrl,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
+        registrationStartDate: registrationStartDate ? new Date(registrationStartDate) : null,
+        registrationEndDate: registrationEndDate ? new Date(registrationEndDate) : null,
       },
     });
 
