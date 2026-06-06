@@ -54,7 +54,7 @@ export default async function DashboardPage() {
             </Link>
             {session.user.role === "ADMIN" && (
               <Link
-                href="/admin/campaigns"
+                href="/admin"
                 className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-100 transition-colors"
               >
                 <Settings size={16} /> <span className="hidden sm:inline">Quản trị hệ thống</span>
