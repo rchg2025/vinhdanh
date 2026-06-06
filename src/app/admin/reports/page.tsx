@@ -103,8 +103,14 @@ export default async function AdminReportsPage({
                     {evidenceFiles.length === 0 && <span className="text-gray-400 text-sm">Không có</span>}
                     <DownloadAllButton files={evidenceFiles} />
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(report.createdAt).toLocaleDateString("vi-VN")}
+                  <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    {new Date(report.createdAt).toLocaleString("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric"
+                    })}
                   </td>
                   <td className="px-6 py-4 text-sm text-right flex justify-end">
                     <AdminActionButtons 
