@@ -212,6 +212,17 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
     reader.readAsArrayBuffer(file);
   };
 
+  const handleDownloadTemplate = () => {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["Họ và Tên", "Email", "MSSV", "Mật khẩu (Mặc định: 123456)"],
+      ["Nguyễn Văn A", "nva@student.vn", "3123456", "123456"],
+      ["Trần Thị B", "ttb@student.vn", "3123457", ""]
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Users");
+    XLSX.writeFile(wb, "mau_import_thanh_vien.xlsx");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -220,6 +231,13 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
           <p className="text-gray-500 mt-1">Xem, thêm, sửa và xóa tài khoản người dùng</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleDownloadTemplate} 
+            className="bg-white gap-2 rounded-lg text-gray-700"
+          >
+            Tải file mẫu
+          </Button>
           <input
             type="file"
             accept=".xlsx, .xls"
