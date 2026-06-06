@@ -117,17 +117,45 @@ model Otp {
   createdAt DateTime @default(now())
 }
 
+model ActivityProgram {
+  id          String          @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  startDate   DateTime
+  endDate     DateTime
+  stages      ActivityStage[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ActivityStage {
+  id          String          @id @default(cuid())
+  title       String
+  description String?
+  programId   String
+  program     ActivityProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  activities  Activity[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
 model Activity {
-  id            String   @id @default(cuid())
-  title         String
-  description   String?
-  imageUrl      String?
-  startDate     DateTime
-  endDate       DateTime
-  registrations ActivityRegistration[]
-  reports       ActivityReport[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String                 @id @default(cuid())
+  title            String
+  description      String?
+  imageUrl         String?
+  startDate        DateTime
+  endDate          DateTime
+  
+  maxRegistrations Int?
+  stageId          String?
+  stage            ActivityStage?         @relation(fields: [stageId], references: [id], onDelete: SetNull)
+
+  registrations    ActivityRegistration[]
+  reports          ActivityReport[]
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
 }
 
 enum RegistrationStatus {

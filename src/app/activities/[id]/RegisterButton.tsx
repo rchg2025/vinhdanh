@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function RegisterButton({ activityId, isRegistered }: { activityId: string, isRegistered: boolean }) {
+export default function RegisterButton({ activityId, isRegistered = false, isFull = false }: { activityId: string; isRegistered?: boolean; isFull?: boolean }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleRegister = async () => {
-    if (isRegistered) return;
+    if (isRegistered || isFull) return;
     
     setLoading(true);
     try {
@@ -31,8 +31,16 @@ export default function RegisterButton({ activityId, isRegistered }: { activityI
 
   if (isRegistered) {
     return (
-      <button disabled className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md cursor-not-allowed">
+      <button disabled className="bg-gray-400 text-white px-6 py-2 rounded-md cursor-not-allowed">
         Đã đăng ký
+      </button>
+    );
+  }
+
+  if (isFull) {
+    return (
+      <button disabled className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-md cursor-not-allowed opacity-75">
+        Đã đủ số lượng
       </button>
     );
   }
@@ -41,7 +49,7 @@ export default function RegisterButton({ activityId, isRegistered }: { activityI
     <button 
       onClick={handleRegister} 
       disabled={loading}
-      className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+      className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition disabled:opacity-50"
     >
       {loading ? "Đang xử lý..." : "Đăng ký tham gia"}
     </button>

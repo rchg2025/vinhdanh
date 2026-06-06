@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Image as ImageIcon } from "lucide-react";
+import { useEffect } from "react";
 
 export default function NewActivityPage() {
   const router = useRouter();
@@ -17,9 +18,16 @@ export default function NewActivityPage() {
     description: "",
     startDate: "",
     endDate: "",
+    stageId: "",
+    maxRegistrations: "",
   });
+  const [stages, setStages] = useState<any[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/stages").then(res => res.json()).then(data => setStages(Array.isArray(data) ? data : []));
+  }, []);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -88,7 +96,12 @@ export default function NewActivityPage() {
       const res = await fetch("/api/activities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, imageUrl }),
+        body: JSON.stringify({ 
+          ...formData, 
+          imageUrl,
+          maxRegistrations: formData.maxRegistrations ? parseInt(formData.maxRegistrations) : null,
+          stageId: formData.stageId || null
+        }),
       });
 
       if (!res.ok) throw new Error("Gặp lỗi khi tạo hoạt động");
@@ -109,8 +122,38 @@ export default function NewActivityPage() {
       <h1 className="text-2xl font-bold mb-6">Tạo Hoạt động mới</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="stageId">Chọn Chặng (Tùy chọn)</Label>
+            <select
+              id="stageId"
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={formData.stageId}
+              onChange={(e) => setFormData({ ...formData, stageId: e.target.value })}
+            >
+              <option value="">-- Hoạt động độc lập (Không thuộc chặng) --</option>
+              {stages.map(stage => (
+                <option key={stage.id} value={stage.id}>
+                  {stage.program?.title} - {stage.title}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="maxRegistrations">Số lượng đăng ký tối đa</Label>
+            <Input
+              id="maxRegistrations"
+              type="number"
+              min="1"
+              value={formData.maxRegistrations}
+              onChange={(e) => setFormData({ ...formData, maxRegistrations: e.target.value })}
+              placeholder="Để trống nếu không giới hạn"
+            />
+          </div>
+        </div>
+
         <div className="space-y-2">
-          <Label htmlFor="title">Tên hoạt động</Label>
+          <Label htmlFor="title">Tên hoạt động <span className="text-red-500">*</span></Label>
           <Input
             id="title"
             required

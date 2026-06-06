@@ -11,6 +11,10 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
   
   const activity = await prisma.activity.findUnique({
     where: { id },
+    include: {
+      stage: { include: { program: true } },
+      registrations: true
+    }
   });
 
   if (!activity) {
@@ -36,6 +40,13 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
       </Link>
       
       <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+        {activity.stage && (
+          <div className="mb-4">
+            <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-3 py-1.5 rounded-lg border border-blue-200">
+              {activity.stage.program.title} &rarr; {activity.stage.title}
+            </span>
+          </div>
+        )}
         <h1 className="text-3xl font-bold mb-4">{activity.title}</h1>
 
         {activity.imageUrl && (
@@ -75,14 +86,36 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
                 Đăng nhập để tham gia
               </Link>
             ) : (
-              <>
-                <RegisterButton activityId={activity.id} isRegistered={!!registration} />
-                {registration && (
-                  <Link href={`/activities/${activity.id}/report`} className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">
-                    Gửi báo cáo
-                  </Link>
+              <div className="flex flex-col gap-4">
+                {activity.maxRegistrations && (
+                  <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-indigo-900">Số lượng đăng ký:</span>
+                      <span className="text-indigo-700 font-bold">{activity.registrations.length} / {activity.maxRegistrations}</span>
+                    </div>
+                    <div className="w-full bg-indigo-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-indigo-600 h-2.5 rounded-full" 
+                        style={{ width: `${Math.min((activity.registrations.length / activity.maxRegistrations) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
                 )}
-              </>
+
+                {!!registration ? (
+                  <Link 
+                    href={`/activities/${activity.id}/report`}
+                    className="inline-block w-full text-center bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+                  >
+                    Báo cáo hoạt động
+                  </Link>
+                ) : (
+                  <RegisterButton 
+                    activityId={activity.id} 
+                    isFull={activity.maxRegistrations !== null && activity.registrations.length >= activity.maxRegistrations}
+                  />
+                )}
+              </div>
             )}
           </div>
         </div>

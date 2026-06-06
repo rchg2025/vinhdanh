@@ -8,6 +8,12 @@ export default async function ActivitiesPage() {
   
   const activities = await prisma.activity.findMany({
     orderBy: { createdAt: 'desc' },
+    include: {
+      stage: {
+        include: { program: true }
+      },
+      registrations: true
+    }
   }).catch(() => []);
 
   return (
@@ -25,12 +31,24 @@ export default async function ActivitiesPage() {
                 className="w-full h-48 object-cover rounded-md mb-4"
               />
             )}
+            {activity.stage && (
+              <div className="mb-3">
+                <span className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-1 rounded border border-blue-200">
+                  {activity.stage.program.title} &rarr; {activity.stage.title}
+                </span>
+              </div>
+            )}
             <h2 className="text-xl font-semibold mb-2">{activity.title}</h2>
             <p className="text-gray-600 mb-4 line-clamp-2">{activity.description}</p>
             <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-              <span>Bắt đầu: {new Date(activity.startDate).toLocaleDateString("vi-VN")}</span>
-              <span>Kết thúc: {new Date(activity.endDate).toLocaleDateString("vi-VN")}</span>
+              <span>{new Date(activity.startDate).toLocaleDateString('vi-VN')}</span>
+              <span>{new Date(activity.endDate).toLocaleDateString('vi-VN')}</span>
             </div>
+            {activity.maxRegistrations && (
+              <div className="text-sm font-medium mb-4 text-indigo-600">
+                Đã đăng ký: {activity.registrations.length} / {activity.maxRegistrations}
+              </div>
+            )}
             <div className="flex gap-2">
               <Link 
                 href={`/activities/${activity.id}`}

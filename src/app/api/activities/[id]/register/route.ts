@@ -25,6 +25,28 @@ export async function POST(
       return NextResponse.json({ error: 'Activity not found' }, { status: 404 });
     }
 
+    const existingReg = await prisma.activityRegistration.findUnique({
+      where: {
+        userId_activityId: {
+          userId,
+          activityId,
+        },
+      },
+    });
+
+    if (existingReg) {
+      return NextResponse.json({ error: 'Bạn đã đăng ký hoạt động này rồi.' }, { status: 400 });
+    }
+
+    if (activity.maxRegistrations !== null) {
+      const currentRegCount = await prisma.activityRegistration.count({
+        where: { activityId }
+      });
+      if (currentRegCount >= activity.maxRegistrations) {
+        return NextResponse.json({ error: 'Hoạt động này đã đủ số lượng đăng ký.' }, { status: 400 });
+      }
+    }
+
     // Upsert registration
     const registration = await prisma.activityRegistration.upsert({
       where: {

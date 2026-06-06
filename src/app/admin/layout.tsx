@@ -11,6 +11,7 @@ const navItems = [
   { href: "/admin/units", label: "Đơn vị / Lớp", icon: Library },
   { href: "/admin/campaigns", label: "Đợt xét duyệt", icon: Award },
   { href: "/admin/applications", label: "Xét duyệt hồ sơ", icon: FileText },
+  { href: "/admin/programs", label: "Chương trình lớn", icon: LayoutDashboard },
   { href: "/admin/activities", label: "Quản lý hoạt động", icon: Trophy },
   { href: "/admin/reports", label: "Báo cáo hoạt động", icon: FileText },
   { href: "/admin/templates", label: "Mẫu giấy khen", icon: ImageIcon },
