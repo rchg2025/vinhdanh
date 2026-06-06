@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import HomeHonoreesSection from "@/components/HomeHonoreesSection";
 import HomeCampaignsSlider from "@/components/HomeCampaignsSlider";
+import HomeProgramsSlider from "@/components/HomeProgramsSlider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { HomeLogoutButton } from "@/components/LogoutButton";
@@ -28,6 +29,12 @@ export default async function Home() {
     take: 9,
   });
 
+  // Fetch up to 9 recent programs
+  const programs = await prisma.activityProgram.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 9,
+  });
+
   return (
     <div className="relative min-h-screen animated-gradient overflow-hidden">
       {/* Floating decorative blobs */}
@@ -42,6 +49,9 @@ export default async function Home() {
           <span>Vinh Danh <span className="font-light opacity-80">Online</span></span>
         </div>
         <div className="hidden md:flex items-center gap-6">
+          <Link href="/activities" className="text-sm font-medium text-white/90 hover:text-white transition-colors">
+            Hoạt Động Tình Nguyện
+          </Link>
           <Link href="/campaigns" className="text-sm font-medium text-white/90 hover:text-white transition-colors">
             Các Đợt Xét Duyệt
           </Link>
@@ -92,55 +102,73 @@ export default async function Home() {
             Hệ thống đang hoạt động
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6 flex flex-wrap justify-center gap-3">
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Vinh Danh
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6 flex flex-col md:flex-row flex-wrap justify-center items-center gap-3">
+            <span className="text-gray-800 dark:text-white text-center">
+              Cổng Thông Tin
             </span>
-            <span className="text-gray-800 dark:text-white">
-              Trực Tuyến
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent text-center">
+              Đoàn Viên
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-10 leading-relaxed">
-            Hệ thống <strong>Vinh danh & Cấp giấy khen tự động</strong> dành cho sinh viên 
-            Trường Cao đẳng Bách Khoa Nam Sài Gòn. Nộp hồ sơ nhanh chóng, nhận kết quả minh bạch.
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed text-center">
+            Hệ thống tích hợp <strong>Đăng ký & Báo cáo hoạt động tình nguyện</strong> cùng chức năng <strong>Vinh danh & Cấp giấy khen tự động</strong> dành cho sinh viên Trường Cao đẳng Bách Khoa Nam Sài Gòn.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/activities"
+              className="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 text-white font-semibold rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all text-center"
+            >
+              🎯 Khám phá hoạt động
+            </Link>
             <Link
               href="/login"
               className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all text-center"
             >
               🚀 Đăng nhập ngay
             </Link>
-            <Link
-              href="/register"
-              className="w-full sm:w-auto px-8 py-3.5 bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-800 font-semibold rounded-full hover:bg-white transition-all text-center"
-            >
-              📝 Tạo tài khoản
-            </Link>
           </div>
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mx-auto mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mx-auto mt-16 max-w-6xl">
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform cursor-default">
-            <div className="text-4xl mb-4">📋</div>
-            <h3 className="font-bold text-lg text-gray-800 mb-2">Nộp hồ sơ Online</h3>
-            <p className="text-sm text-gray-500">Sinh viên đăng ký và nộp minh chứng trực tuyến mọi lúc, mọi nơi.</p>
+            <div className="text-4xl mb-4">🤝</div>
+            <h3 className="font-bold text-lg text-gray-800 mb-2">Đăng ký tham gia</h3>
+            <p className="text-sm text-gray-500">Dễ dàng theo dõi và đăng ký các hoạt động tình nguyện do Nhà trường và Đoàn thanh niên tổ chức.</p>
           </div>
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform cursor-default">
-            <div className="text-4xl mb-4">✅</div>
-            <h3 className="font-bold text-lg text-gray-800 mb-2">Xét duyệt minh bạch</h3>
-            <p className="text-sm text-gray-500">Quy trình xét duyệt rõ ràng, theo dõi trạng thái hồ sơ theo thời gian thực.</p>
+            <div className="text-4xl mb-4">📸</div>
+            <h3 className="font-bold text-lg text-gray-800 mb-2">Báo cáo hoạt động</h3>
+            <p className="text-sm text-gray-500">Nộp báo cáo và upload minh chứng hoạt động để được ghi nhận vào hồ sơ cá nhân.</p>
+          </div>
+          <div className="glass-card p-6 text-center hover:scale-105 transition-transform cursor-default">
+            <div className="text-4xl mb-4">📋</div>
+            <h3 className="font-bold text-lg text-gray-800 mb-2">Nộp hồ sơ vinh danh</h3>
+            <p className="text-sm text-gray-500">Sinh viên đăng ký các danh hiệu thi đua và nộp minh chứng trực tuyến mọi lúc, mọi nơi.</p>
           </div>
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform cursor-default">
             <div className="text-4xl mb-4">🎓</div>
             <h3 className="font-bold text-lg text-gray-800 mb-2">Giấy khen tự động</h3>
-            <p className="text-sm text-gray-500">Giấy khen được tạo tự động và gửi qua email ngay khi được duyệt.</p>
+            <p className="text-sm text-gray-500">Giấy khen điện tử được tạo tự động và lưu trữ trên hệ thống ngay khi được duyệt.</p>
           </div>
         </div>
       </main>
+
+      {/* Programs / Activities */}
+      {programs.length > 0 && (
+        <section className="relative z-10 px-6 md:px-12 pb-16 pt-8">
+          <div className="w-full mx-auto">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">🔥 Hoạt Động Tình Nguyện Mới</h2>
+              <p className="text-white/80">Tham gia và đóng góp cho các chương trình tình nguyện ý nghĩa</p>
+            </div>
+            
+            <HomeProgramsSlider programs={JSON.parse(JSON.stringify(programs))} />
+          </div>
+        </section>
+      )}
 
       {/* Active Campaigns */}
       {activeCampaigns.length > 0 && (
