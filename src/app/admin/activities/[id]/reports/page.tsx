@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
+import DownloadAllButton from "@/components/admin/DownloadAllButton";
 
 export default async function AdminActivityReportsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,6 +20,10 @@ export default async function AdminActivityReportsPage({ params }: { params: Pro
       user: true,
     }
   }).catch(() => []);
+  const allEvidenceFiles = reports.reduce((acc, report) => {
+    const files = (report.evidenceFiles as string[]) || [];
+    return [...acc, ...files];
+  }, [] as string[]);
 
   return (
     <div className="space-y-6">
@@ -26,7 +31,10 @@ export default async function AdminActivityReportsPage({ params }: { params: Pro
         &larr; Quay lại danh sách hoạt động
       </Link>
       
-      <h1 className="text-2xl font-bold">Báo cáo: {activity.title}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Báo cáo: {activity.title}</h1>
+        <DownloadAllButton files={allEvidenceFiles} />
+      </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left border-collapse">
