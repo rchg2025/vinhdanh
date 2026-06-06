@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, studentId, password } = await req.json();
+    const { name, email, studentId, password, unitId, className } = await req.json();
 
     if (!email || !password || !name) {
       return NextResponse.json({ message: "Thiếu thông tin bắt buộc" }, { status: 400 });
@@ -25,13 +25,24 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Resolve classId from className + unitId if provided
+    let classId: string | undefined;
+    if (unitId && className) {
+      const cls = await prisma.class.findFirst({
+        where: { name: className, unitId },
+      });
+      if (cls) classId = cls.id;
+    }
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
         studentId,
         password: hashedPassword,
-        role: "USER"
+        role: "USER",
+        unitId: unitId || undefined,
+        classId: classId || undefined,
       }
     });
 

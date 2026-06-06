@@ -29,7 +29,7 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+        <div className="w-full mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
               <ArrowLeft size={20} />
@@ -41,7 +41,7 @@ export default async function ProfilePage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-8">
+      <main className="w-full mx-auto px-4 md:px-8 py-8 space-y-8">
         <ProfileClient initialUser={user} units={units} />
       </main>
     </div>

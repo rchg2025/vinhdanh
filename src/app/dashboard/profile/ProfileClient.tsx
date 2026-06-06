@@ -81,7 +81,7 @@ export default function ProfileClient({ initialUser, units }: { initialUser: Pro
       </div>
       
       <div className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6 w-full">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Họ và tên</label>

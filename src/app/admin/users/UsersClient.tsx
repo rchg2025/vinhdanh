@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { User, Shield, CalendarIcon, Plus, Edit, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,38 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
   const [formData, setFormData] = useState({
     name: "", email: "", password: "", studentId: "", unitId: "", classId: "", role: "USER" as "USER" | "ADMIN"
   });
+
+  // Filter & Pagination State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterUnitId, setFilterUnitId] = useState("");
+  const [filterClassId, setFilterClassId] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 15;
+
+  const availableFilterClasses = useMemo(() => {
+    if (!filterUnitId) return [];
+    const unit = units.find(u => u.id === filterUnitId);
+    return unit?.classes || [];
+  }, [filterUnitId, units]);
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const matchesSearch = 
+        (user.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (user.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (user.studentId || "").toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesUnit = filterUnitId ? user.unitId === filterUnitId : true;
+      const matchesClass = filterClassId ? user.classId === filterClassId : true;
+      return matchesSearch && matchesUnit && matchesClass;
+    });
+  }, [users, searchQuery, filterUnitId, filterClassId]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / ITEMS_PER_PAGE));
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterUnitId, filterClassId]);
 
   const availableClasses = useMemo(() => {
     if (!formData.unitId) return [];
@@ -130,6 +162,44 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
         </Button>
       </div>
 
+      {/* Filters and Search */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4">
+        <div className="flex-1">
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm theo tên, email, mssv..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+        <div className="md:w-48 shrink-0">
+          <select 
+            value={filterUnitId} 
+            onChange={(e) => { setFilterUnitId(e.target.value); setFilterClassId(""); }} 
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+          >
+            <option value="">Tất cả đơn vị</option>
+            {units.map(u => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="md:w-48 shrink-0">
+          <select 
+            value={filterClassId} 
+            onChange={(e) => setFilterClassId(e.target.value)} 
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400"
+            disabled={!filterUnitId || availableFilterClasses.length === 0}
+          >
+            <option value="">Tất cả lớp</option>
+            {availableFilterClasses.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -143,7 +213,13 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {users.map(user => (
+              {paginatedUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                    Không tìm thấy thành viên nào phù hợp.
+                  </td>
+                </tr>
+              ) : paginatedUsers.map(user => (
                 <tr key={user.id} className="hover:bg-gray-50/50 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -191,6 +267,36 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <div className="text-sm text-gray-500">
+            Hiển thị <span className="font-medium">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> đến <span className="font-medium">{Math.min(currentPage * ITEMS_PER_PAGE, filteredUsers.length)}</span> trong số <span className="font-medium">{filteredUsers.length}</span> thành viên
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            >
+              Trang trước
+            </Button>
+            <div className="text-sm font-medium px-2">
+              Trang {currentPage} / {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            >
+              Trang sau
+            </Button>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">

@@ -1,21 +1,21 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, Save, Plus, Trash2, Image as ImageIcon, Type, Minus, Bold, Italic, Underline } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Image as ImageIcon, Type, Minus, Bold, Italic, Underline, QrCode } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
 type TemplateField = {
   id: string;
-  type: "text" | "image" | "line";
+  type: "text" | "image" | "line" | "qrcode";
   label: string;
   value: string;
   x: number; // percentage 0-100
   y: number; // percentage 0-100
   fontSize?: number;
   color?: string;
-  width?: number; // for image/line
-  height?: number; // for image/line
+  width?: number; // for image/line/qrcode
+  height?: number; // for image/line/qrcode
   align?: "left" | "center" | "right";
   fontFamily?: string;
   bold?: boolean;
@@ -25,13 +25,16 @@ type TemplateField = {
 };
 
 const GOOGLE_FONTS = [
-  "Roboto",
-  "Arial",
-  "Times New Roman",
-  "Playfair Display",
-  "Montserrat",
-  "Lora",
-  "Dancing Script"
+  // Sans-serif
+  "Roboto", "Open Sans", "Montserrat", "Lato", "Nunito", "Raleway",
+  "Josefin Sans", "Work Sans", "Cabin", "Barlow", "Exo 2", "Be Vietnam Pro", "Noto Sans",
+  // Serif
+  "Playfair Display", "Merriweather", "Lora", "EB Garamond",
+  "Libre Baskerville", "Cormorant Garamond", "Cinzel", "Noto Serif",
+  // Handwriting / Display
+  "Dancing Script", "Great Vibes", "Pacifico", "Abril Fatface",
+  // System
+  "Arial", "Times New Roman", "Georgia",
 ];
 
 const AVAILABLE_FIELDS = [
@@ -44,10 +47,12 @@ const AVAILABLE_FIELDS = [
   { id: "decisionNumber", label: "Số quyết định", type: "text", defaultVal: "Số: 01/QĐ" },
   { id: "location", label: "Địa điểm", type: "text", defaultVal: "Hà Nội" },
   { id: "signingDate", label: "Thời gian ký", type: "text", defaultVal: "ngày 01 tháng 01 năm 2025" },
+  { id: "customText", label: "Văn bản tùy chỉnh", type: "text", defaultVal: "Nhập văn bản tùy chỉnh" },
   { id: "portrait", label: "Ảnh đại diện SV", type: "image", defaultVal: "" },
   { id: "signature", label: "Chữ ký (Ảnh)", type: "image", defaultVal: "" },
   { id: "logo", label: "Logo cơ quan", type: "image", defaultVal: "" },
   { id: "line", label: "Đường kẻ (Line)", type: "line", defaultVal: "" },
+  { id: "qrcode", label: "Mã QR Code", type: "qrcode", defaultVal: "" },
 ];
 
 const getDisplayUrl = (url: string) => {
@@ -71,15 +76,40 @@ export default function DesignClient({ template }: { template: any }) {
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
 
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [canvasScale, setCanvasScale] = useState(1);
+  const [canvasDimensions, setCanvasDimensions] = useState({ w: 1123, h: 794 });
+  const canvasScaleRef = useRef(1);
   const dragInfo = useRef({ fieldId: "", startX: 0, startY: 0, initialX: 0, initialY: 0 });
+  const resizeInfo = useRef({ fieldId: "", startX: 0, startY: 0, initialWidth: 0, initialHeight: 0, initialFontSize: 0 });
 
   useEffect(() => {
     if (template.config && Array.isArray(template.config)) {
       setFields(template.config);
     }
   }, [template]);
+
+  useEffect(() => {
+    canvasScaleRef.current = canvasScale;
+  }, [canvasScale]);
+
+  useEffect(() => {
+    const updateScale = () => {
+      if (!canvasContainerRef.current) return;
+      const padding = 64;
+      const w = canvasContainerRef.current.clientWidth - padding;
+      const h = canvasContainerRef.current.clientHeight - padding;
+      if (w <= 0 || h <= 0) return;
+      const scale = Math.min(w / canvasDimensions.w, h / canvasDimensions.h, 1);
+      setCanvasScale(Math.max(scale, 0.1));
+    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, [canvasDimensions]);
 
   const handleAddField = (fieldDef: any) => {
     const newField: TemplateField = {
@@ -94,8 +124,8 @@ export default function DesignClient({ template }: { template: any }) {
       align: "center",
       fontFamily: "Roboto",
       bold: fieldDef.id === "honoree" || fieldDef.id === "signerName",
-      width: fieldDef.type === "image" ? 150 : fieldDef.type === "line" ? 200 : undefined,
-      height: fieldDef.type === "image" ? 150 : fieldDef.type === "line" ? 2 : undefined,
+      width: fieldDef.type === "image" ? 150 : fieldDef.type === "line" ? 200 : fieldDef.type === "qrcode" ? 120 : undefined,
+      height: fieldDef.type === "image" ? 150 : fieldDef.type === "line" ? 2 : fieldDef.type === "qrcode" ? 120 : undefined,
       shape: fieldDef.type === "image" ? "rectangle" : undefined,
     };
     setFields([...fields, newField]);
@@ -165,7 +195,41 @@ export default function DesignClient({ template }: { template: any }) {
     };
   };
 
+  const handleResizeMouseDown = (e: React.MouseEvent, fieldId: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const field = fields.find(f => f.id === fieldId);
+    if (!field) return;
+    setSelectedFieldId(fieldId);
+    setIsResizing(true);
+    resizeInfo.current = {
+      fieldId,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialWidth: field.width || 150,
+      initialHeight: field.height || 150,
+      initialFontSize: field.fontSize || 24,
+    };
+  };
+
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (isResizing && resizeInfo.current.fieldId) {
+      const dx = e.clientX - resizeInfo.current.startX;
+      const dy = e.clientY - resizeInfo.current.startY;
+      const scale = canvasScaleRef.current;
+      setFields(prev => prev.map(f => {
+        if (f.id !== resizeInfo.current.fieldId) return f;
+        if (f.type === "text") {
+          return { ...f, fontSize: Math.max(8, Math.round(resizeInfo.current.initialFontSize + dx / scale / 3)) };
+        }
+        return {
+          ...f,
+          width: Math.max(10, Math.round(resizeInfo.current.initialWidth + dx / scale)),
+          height: Math.max(2, Math.round(resizeInfo.current.initialHeight + dy / scale)),
+        };
+      }));
+      return;
+    }
     if (!isDragging || !dragInfo.current.fieldId || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const dx = e.clientX - dragInfo.current.startX;
@@ -182,6 +246,7 @@ export default function DesignClient({ template }: { template: any }) {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setIsResizing(false);
   };
 
   const selectedField = fields.find((f) => f.id === selectedFieldId);
@@ -189,7 +254,7 @@ export default function DesignClient({ template }: { template: any }) {
   return (
     <div className="flex flex-col h-full md:flex-row bg-gray-50 font-sans">
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Barlow:ital,wght@0,400;0,700;1,400&family=Be+Vietnam+Pro:ital,wght@0,400;0,700;1,400&family=Cabin:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Dancing+Script:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Exo+2:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Josefin+Sans:ital,wght@0,400;0,700;1,400&family=Lato:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans:ital,wght@0,400;0,700;1,400&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Nunito:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,700;1,400&family=Pacifico&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Raleway:ital,wght@0,400;0,700;1,400&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Work+Sans:ital,wght@0,400;0,700;1,400&display=swap');
       `}} />
       
       {/* Sidebar */}
@@ -221,7 +286,7 @@ export default function DesignClient({ template }: { template: any }) {
                   onClick={() => handleAddField(af)}
                   className="flex flex-col items-center justify-center p-3 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-colors text-center"
                 >
-                  {af.type === "text" ? <Type size={16} className="mb-1.5 opacity-70" /> : af.type === "line" ? <Minus size={16} className="mb-1.5 opacity-70" /> : <ImageIcon size={16} className="mb-1.5 opacity-70" />}
+                  {af.type === "text" ? <Type size={16} className="mb-1.5 opacity-70" /> : af.type === "line" ? <Minus size={16} className="mb-1.5 opacity-70" /> : af.type === "qrcode" ? <QrCode size={16} className="mb-1.5 opacity-70" /> : <ImageIcon size={16} className="mb-1.5 opacity-70" />}
                   <span className="line-clamp-2">{af.label}</span>
                 </button>
               ))}
@@ -433,6 +498,34 @@ export default function DesignClient({ template }: { template: any }) {
                   </>
                 )}
 
+                {selectedField.type === "qrcode" && (
+                  <div className="space-y-3">
+                    <div className="p-2 bg-indigo-50 border border-indigo-200 rounded-md text-xs text-indigo-700">
+                      Mã QR sẽ tự động liên kết đến trang xem giấy khen online khi xuất giấy khen.
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Chiều rộng (px)</label>
+                        <input
+                          type="number"
+                          value={selectedField.width || 120}
+                          onChange={(e) => handleUpdateField(selectedField.id, { width: Number(e.target.value) })}
+                          className="w-full px-3 py-1.5 text-sm rounded-md border border-gray-200 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Chiều cao (px)</label>
+                        <input
+                          type="number"
+                          value={selectedField.height || 120}
+                          onChange={(e) => handleUpdateField(selectedField.id, { height: Number(e.target.value) })}
+                          className="w-full px-3 py-1.5 text-sm rounded-md border border-gray-200 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Vị trí X (%)</label>
@@ -463,23 +556,30 @@ export default function DesignClient({ template }: { template: any }) {
 
       {/* Canvas Area */}
       <div 
-        className="flex-1 bg-gray-200 overflow-auto flex items-center justify-center p-4 md:p-8 min-h-[600px] cursor-default"
+        ref={canvasContainerRef}
+        className="flex-1 bg-gray-200 overflow-auto flex items-start justify-center p-4 md:p-8 cursor-default"
+        style={{ minHeight: "600px" }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onClick={() => setSelectedFieldId(null)}
       >
-        {/* A4 Landscape Size: 297x210mm -> 1123x794 px at 96 DPI */}
+        {/* Wrapper reserves the visual layout space for the scaled canvas */}
+        <div style={{
+          width: `${Math.round(canvasDimensions.w * canvasScale)}px`,
+          height: `${Math.round(canvasDimensions.h * canvasScale)}px`,
+          position: "relative",
+          flexShrink: 0,
+        }}>
+        {/* dynamically scaled to fit */}
         <div 
           ref={containerRef}
-          className="relative bg-white shadow-2xl origin-center max-w-full"
+          className="absolute top-0 left-0 bg-white shadow-2xl"
           style={{ 
-            width: "1123px", 
-            height: "794px", 
-            minWidth: "1123px",
-            minHeight: "794px",
-            transform: "scale(0.85)", 
-            transformOrigin: "center" 
+            width: `${canvasDimensions.w}px`, 
+            height: `${canvasDimensions.h}px`, 
+            transform: `scale(${canvasScale})`,
+            transformOrigin: "top left",
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -488,8 +588,16 @@ export default function DesignClient({ template }: { template: any }) {
             src={getDisplayUrl(template.imageUrl)} 
             alt="Template" 
             className="w-full h-full object-cover pointer-events-none opacity-90"
+            onLoad={(e) => {
+              const img = e.target as HTMLImageElement;
+              if (img.naturalHeight > img.naturalWidth) {
+                setCanvasDimensions({ w: 794, h: 1123 });
+              } else {
+                setCanvasDimensions({ w: 1123, h: 794 });
+              }
+            }}
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1123x794?text=L%E1%BB%97i+%E1%BA%A3nh+n%E1%BB%81n';
+              (e.target as HTMLImageElement).src = `https://via.placeholder.com/${canvasDimensions.w}x${canvasDimensions.h}?text=L%E1%BB%97i+%E1%BA%A3nh+n%E1%BB%81n`;
             }}
           />
 
@@ -512,8 +620,8 @@ export default function DesignClient({ template }: { template: any }) {
                 fontFamily: field.fontFamily || "Roboto",
                 textAlign: field.align,
                 whiteSpace: "nowrap",
-                width: field.type === "image" || field.type === "line" ? `${field.width}px` : undefined,
-                height: field.type === "image" || field.type === "line" ? `${field.height}px` : undefined,
+                width: field.type === "image" || field.type === "line" || field.type === "qrcode" ? `${field.width}px` : undefined,
+                height: field.type === "image" || field.type === "line" || field.type === "qrcode" ? `${field.height}px` : undefined,
                 backgroundColor: field.type === "line" ? field.color : "transparent"
               }}
             >
@@ -542,11 +650,44 @@ export default function DesignClient({ template }: { template: any }) {
                   </div>
                 );
               })()}
+
+              {field.type === "qrcode" && (() => {
+                const sz = Math.min(field.width || 120, field.height || 120);
+                return (
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=${sz}x${sz}&data=${encodeURIComponent("https://vinhdanh.ite.id.vn/certificate/preview")}`}
+                    alt="QR Code"
+                    style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none", backgroundColor: "#fff", padding: "6px", borderRadius: "8px" }}
+                  />
+                );
+              })()}
               
-              {/* Line type doesn't need children, it's just a styled div with background color */}
+              {/* Line type: background color only */}
+
+              {/* Resize handle — visible when selected */}
+              {selectedFieldId === field.id && (
+                <div
+                  onMouseDown={(e) => handleResizeMouseDown(e, field.id)}
+                  title={field.type === "text" ? "Kéo để thay đổi cỡ chữ" : "Kéo để thay đổi kích thước"}
+                  style={{
+                    position: "absolute",
+                    bottom: -5,
+                    right: -5,
+                    width: 10,
+                    height: 10,
+                    background: "#3b82f6",
+                    border: "2px solid white",
+                    borderRadius: 2,
+                    cursor: "se-resize",
+                    zIndex: 20,
+                    boxShadow: "0 0 3px rgba(0,0,0,0.4)",
+                  }}
+                />
+              )}
             </div>
           ))}
         </div>
+        </div>{/* close scale wrapper */}
       </div>
     </div>
   );

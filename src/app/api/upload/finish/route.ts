@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     if (result.success) {
       return NextResponse.json({ 
-        url: result.webViewLink, 
+        url: `https://drive.google.com/uc?export=view&id=${result.fileId}`, 
         id: result.fileId 
       });
     } else {

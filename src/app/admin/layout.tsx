@@ -11,6 +11,9 @@ const navItems = [
   { href: "/admin/units", label: "Đơn vị / Lớp", icon: Library },
   { href: "/admin/campaigns", label: "Đợt xét duyệt", icon: Award },
   { href: "/admin/applications", label: "Xét duyệt hồ sơ", icon: FileText },
+  { href: "/admin/programs", label: "Chương trình lớn", icon: LayoutDashboard },
+  { href: "/admin/activities", label: "Quản lý hoạt động", icon: Trophy },
+  { href: "/admin/reports", label: "Báo cáo hoạt động", icon: FileText },
   { href: "/admin/templates", label: "Mẫu giấy khen", icon: ImageIcon },
   { href: "/admin/settings", label: "Cài đặt hệ thống", icon: Settings },
 ];
@@ -29,8 +32,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Brand */}
         <div className="px-6 py-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md">
-              <Trophy size={20} />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md p-1.5">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="font-bold text-gray-900 leading-tight">Vinh Danh</h1>
@@ -78,9 +81,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Main */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-6xl mx-auto">
-            {children}
-          </div>
+          {children}
         </div>
       </main>
     </div>

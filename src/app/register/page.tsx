@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+
+type UnitWithClasses = {
+  id: string;
+  name: string;
+  classes: { id: string; name: string }[];
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,10 +20,30 @@ export default function RegisterPage() {
     studentId: "",
     email: "",
     password: "",
+    unitId: "",
+    className: "",
   });
   const [loading, setLoading] = useState(false);
+  const [units, setUnits] = useState<UnitWithClasses[]>([]);
+  const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetch("/api/units/public").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setUnits(data);
+    }).catch(() => { });
+  }, []);
+
+  useEffect(() => {
+    if (formData.unitId) {
+      const unit = units.find(u => u.id === formData.unitId);
+      setClasses(unit?.classes || []);
+      setFormData(prev => ({ ...prev, className: "" }));
+    } else {
+      setClasses([]);
+    }
+  }, [formData.unitId, units]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
@@ -56,11 +82,11 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl mb-4">
-            <span className="text-3xl">📝</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl mb-4 overflow-hidden p-2">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-white">Tạo Tài Khoản</h1>
-          <p className="text-white/70 text-sm mt-1">Bách Khoa Nam Sài Gòn</p>
+          <p className="text-white/70 text-sm mt-1">Trường Cao đẳng Bách Khoa Nam Sài Gòn</p>
         </div>
 
         {/* Glass Card */}
@@ -98,7 +124,7 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="sv@student.abc.edu.vn"
+                placeholder="Nhập email của bạn"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -119,6 +145,47 @@ export default function RegisterPage() {
               />
             </div>
 
+            <div className="space-y-1.5">
+              <Label htmlFor="unitId" className="text-gray-700 font-medium">Đơn vị / Chi đoàn</Label>
+              <select
+                id="unitId"
+                value={formData.unitId}
+                onChange={handleChange}
+                className="w-full h-11 px-3 bg-gray-50 border border-gray-200 focus:border-blue-400 rounded-xl text-gray-800 text-sm outline-none"
+              >
+                <option value="">-- Chọn đơn vị --</option>
+                {units.map(u => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="className" className="text-gray-700 font-medium">Tên lớp</Label>
+              {classes.length > 0 ? (
+                <select
+                  id="className"
+                  value={formData.className}
+                  onChange={handleChange}
+                  className="w-full h-11 px-3 bg-gray-50 border border-gray-200 focus:border-blue-400 rounded-xl text-gray-800 text-sm outline-none"
+                >
+                  <option value="">-- Chọn lớp --</option>
+                  {classes.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <Input
+                  id="className"
+                  type="text"
+                  placeholder="Nhập tên lớp"
+                  value={formData.className}
+                  onChange={handleChange}
+                  className="h-11 bg-gray-50 border-gray-200 focus:border-blue-400 rounded-xl"
+                />
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -127,8 +194,8 @@ export default function RegisterPage() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
                   Đang xử lý...
                 </span>
@@ -142,6 +209,11 @@ export default function RegisterPage() {
               Đăng nhập ngay
             </Link>
           </p>
+          <div className="text-center mt-4">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-500 transition-colors">
+              <span className="text-lg">🏠</span> Quay về trang chủ
+            </Link>
+          </div>
         </div>
       </div>
     </div>

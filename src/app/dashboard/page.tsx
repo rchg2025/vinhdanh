@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Trophy, Settings, Calendar, Clock, Archive, ChevronRight, FileText } from "lucide-react";
+import { Trophy, Settings, Clock, Archive, ChevronRight, FileText, ExternalLink, Home } from "lucide-react";
 import { HeaderLogoutButton } from "@/components/LogoutButton";
 
 const statusMap: Record<string, { label: string; cls: string; icon: string }> = {
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   if (!session) redirect("/login");
 
-  const [campaigns, myApplications] = await Promise.all([
+  const [campaigns, myApplications, myActivities] = await Promise.all([
     prisma.campaign.findMany({
       where: { endDate: { gte: new Date() } },
       orderBy: { createdAt: "desc" },
@@ -27,20 +27,31 @@ export default async function DashboardPage() {
       include: { campaign: true },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.activityRegistration.findMany({
+      where: { userId: session.user.id },
+      include: { activity: true },
+      orderBy: { createdAt: "desc" },
+    }).catch(() => []),
   ]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       {/* Top Nav */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+        <div className="w-full px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl text-white shadow-md">
-              <Trophy size={20} />
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 rounded-xl shadow-md flex items-center justify-center w-9 h-9">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-gray-900 text-lg hidden sm:block tracking-tight">Vinh Danh Online</span>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <Link
+              href="/"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Home size={16} /> <span className="hidden sm:inline">Về Trang chủ</span>
+            </Link>
             {session.user.role === "ADMIN" && (
               <Link
                 href="/admin/campaigns"
@@ -65,13 +76,13 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 md:px-8 py-8 space-y-12">
+      <main className="w-full px-4 md:px-8 py-8 space-y-12">
         {/* Welcome */}
         <div className="relative overflow-hidden bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
-          <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none text-indigo-900 overflow-hidden">
-            <Trophy size={300} />
+          <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none overflow-hidden">
+            <img src="/logo.png" alt="" className="w-[300px] h-[300px] object-contain grayscale" />
           </div>
-          <div className="relative z-10 max-w-2xl">
+          <div className="relative z-10 w-full">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
               Chào mừng trở lại, {session.user.name} 👋
             </h1>
@@ -173,15 +184,36 @@ export default async function DashboardPage() {
                             </span>
                           </td>
                           <td className="px-8 py-5 text-right">
-                            {app.status === "APPROVED" && app.certificateUrl ? (
-                              <a
-                                href={app.certificateUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-xs shadow-sm"
-                              >
-                                Tải Giấy Khen <ChevronRight size={14} />
-                              </a>
+                            {app.status === "APPROVED" ? (
+                              <div className="flex flex-col items-end gap-2">
+                                {app.certificateUrl && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={`/api/proxy-image?url=${encodeURIComponent(
+                                      (() => {
+                                        const u = app.certificateUrl!;
+                                        const m = u.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+                                        if (m?.[1]) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
+                                        const m2 = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                                        if (m2?.[1]) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w400`;
+                                        return u;
+                                      })()
+                                    )}`}
+                                    alt="Giấy khen"
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="w-32 h-auto rounded-lg border border-gray-200 shadow-sm bg-gray-100"
+                                  />
+                                )}
+                                <div className="flex gap-2">
+                                  <Link
+                                    href={`/certificate/${app.id}`}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-xs shadow-sm"
+                                  >
+                                    <ExternalLink size={12} /> Xem giấy khen
+                                  </Link>
+                                </div>
+                              </div>
                             ) : (
                               <span className="text-gray-300 text-xs font-medium">Chưa có</span>
                             )}
@@ -189,6 +221,70 @@ export default async function DashboardPage() {
                         </tr>
                       );
                     })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* My Activities Section */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              Hoạt động tình nguyện
+            </h2>
+            <Link href="/activities" className="text-indigo-600 hover:underline font-semibold text-sm">
+              Xem tất cả hoạt động &rarr;
+            </Link>
+          </div>
+          
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            {myActivities.length === 0 ? (
+              <div className="text-center py-20 flex flex-col items-center">
+                <div className="bg-gray-50 p-4 rounded-full text-gray-400 mb-4">
+                  <Archive size={32} />
+                </div>
+                <p className="text-gray-500 font-medium">Bạn chưa đăng ký tham gia hoạt động nào.</p>
+                <Link href="/activities" className="text-indigo-600 text-sm mt-2 hover:underline">
+                  Tìm và đăng ký hoạt động ngay
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-gray-50/80 border-b border-gray-100">
+                    <tr>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs">Tên hoạt động</th>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs">Thời gian</th>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs">Trạng thái</th>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs text-right">Báo cáo</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {myActivities.map((reg) => (
+                      <tr key={reg.id} className="hover:bg-gray-50/50 transition-colors group">
+                        <td className="px-8 py-5">
+                          <p className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{reg.activity.title}</p>
+                        </td>
+                        <td className="px-8 py-5 text-gray-500 font-medium">
+                          {new Date(reg.activity.startDate).toLocaleDateString("vi-VN")} - {new Date(reg.activity.endDate).toLocaleDateString("vi-VN")}
+                        </td>
+                        <td className="px-8 py-5">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                            Đã đăng ký
+                          </span>
+                        </td>
+                        <td className="px-8 py-5 text-right">
+                          <Link
+                            href={`/activities/${reg.activity.id}/report`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs shadow-sm"
+                          >
+                            <FileText size={12} /> Báo cáo kết quả
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

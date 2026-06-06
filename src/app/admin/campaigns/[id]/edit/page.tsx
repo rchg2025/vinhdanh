@@ -232,7 +232,7 @@ export default function EditCampaignPage() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="p-6 w-full mx-auto">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Chỉnh Sửa Đợt Vinh Danh</CardTitle>
