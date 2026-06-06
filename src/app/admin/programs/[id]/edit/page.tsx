@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
+import { getDisplayUrl } from "@/lib/utils";
 
 export default function EditProgramPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -179,7 +180,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
           
           {existingImageUrl && !imageFile && (
             <div className="mb-2">
-              <img src={existingImageUrl} alt="Current banner" className="h-32 object-cover rounded-lg border border-gray-200" />
+              <img src={getDisplayUrl(existingImageUrl)} alt="Current banner" className="h-32 object-cover rounded-lg border border-gray-200" />
             </div>
           )}
 

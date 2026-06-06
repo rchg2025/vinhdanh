@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import RegisterButton from "./RegisterButton";
 import Link from "next/link";
 import PublicHeader from "@/components/PublicHeader";
+import { getDisplayUrl } from "@/lib/utils";
 
 export default async function ActivityDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -55,7 +56,7 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
         {activity.imageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img 
-            src={activity.imageUrl} 
+            src={getDisplayUrl(activity.imageUrl)} 
             alt={activity.title} 
             className="w-full h-64 object-cover rounded-xl mb-6 shadow-sm"
           />
