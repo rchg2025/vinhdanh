@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Trophy } from "lucide-react";
 import VinhDanhPagination from "./vinh-danh-pagination";
+import PublicHeader from "@/components/PublicHeader";
 
 const PER_PAGE = 10;
 
@@ -34,19 +35,7 @@ export default async function VinhDanhPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
-        <div className="w-full px-4 md:px-8 h-16 flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 rounded-xl shadow-md flex items-center justify-center w-9 h-9">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
-            </div>
-            <span className="font-bold text-gray-900 text-lg tracking-tight">Vinh Danh Online</span>
-          </Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-gray-600 font-medium">Gương sáng vinh danh</span>
-        </div>
-      </header>
+      <PublicHeader />
 
       <main className="w-full px-4 md:px-8 py-8">
         <div className="mb-8">

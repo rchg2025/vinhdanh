@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, FileText, Send, UserCircle } from "lucide-react";
+import PublicHeader from "@/components/PublicHeader";
 
 export default function ApplicationPage() {
   const router = useRouter();
@@ -159,21 +160,12 @@ export default function ApplicationPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
-      {/* Header / Sidebar alternative - Top fixed header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
-              <ArrowLeft size={20} />
-            </Link>
-            <span className="font-bold text-gray-900 text-lg flex items-center gap-2">
-              <FileText size={20} className="text-indigo-600" /> Nộp Hồ Sơ Mới
-            </span>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       <main className="max-w-3xl mx-auto px-4 md:px-8 mt-8">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-4 font-medium transition-colors">
+          <ArrowLeft size={16} /> Quay lại trang quản lý
+        </Link>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-8 text-white">
             <h1 className="text-2xl md:text-3xl font-bold mb-2">Đăng ký Danh hiệu / Giải thưởng</h1>

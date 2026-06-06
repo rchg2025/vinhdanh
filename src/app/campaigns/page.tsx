@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import PublicHeader from "@/components/PublicHeader";
 
 export const revalidate = 60; // 60 seconds ISR
 
@@ -13,18 +13,7 @@ export default async function CampaignsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
-              <ArrowLeft size={20} />
-            </Link>
-            <span className="font-bold text-gray-900 text-lg">
-              Danh sách Đợt Xét Duyệt
-            </span>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       <main className="max-w-5xl mx-auto px-4 md:px-8 mt-8">
         <div className="text-center mb-10">

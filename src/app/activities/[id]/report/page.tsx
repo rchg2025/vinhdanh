@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import ReportForm from "./ReportForm";
 import Link from "next/link";
+import PublicHeader from "@/components/PublicHeader";
 
 export default async function ActivityReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -33,26 +34,32 @@ export default async function ActivityReportPage({ params }: { params: Promise<{
 
   if (!registration) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-3xl text-center">
-        <h1 className="text-2xl font-bold mb-4">Bạn chưa đăng ký tham gia hoạt động này</h1>
-        <Link href={`/activities/${activity.id}`} className="text-blue-600 hover:underline">
-          Quay lại trang chi tiết hoạt động để đăng ký
-        </Link>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <PublicHeader />
+        <div className="container mx-auto px-4 py-8 max-w-3xl text-center flex-1">
+          <h1 className="text-2xl font-bold mb-4">Bạn chưa đăng ký tham gia hoạt động này</h1>
+          <Link href={`/activities/${activity.id}`} className="text-blue-600 hover:underline">
+            Quay lại trang chi tiết hoạt động để đăng ký
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Link href={`/activities/${activity.id}`} className="text-blue-600 hover:underline mb-6 inline-block">
-        &larr; Quay lại chi tiết
-      </Link>
-      
-      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
-        <h1 className="text-2xl font-bold mb-2">Báo cáo hoạt động</h1>
-        <h2 className="text-xl text-gray-600 mb-8">{activity.title}</h2>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PublicHeader />
+      <div className="container mx-auto px-4 py-8 max-w-3xl flex-1">
+        <Link href={`/activities/${activity.id}`} className="text-blue-600 hover:underline mb-6 inline-block">
+          &larr; Quay lại chi tiết
+        </Link>
         
-        <ReportForm activityId={activity.id} />
+        <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+          <h1 className="text-2xl font-bold mb-2">Báo cáo hoạt động</h1>
+          <h2 className="text-xl text-gray-600 mb-8">{activity.title}</h2>
+          
+          <ReportForm activityId={activity.id} />
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import RegisterButton from "./RegisterButton";
 import Link from "next/link";
+import PublicHeader from "@/components/PublicHeader";
 
 export default async function ActivityDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,8 +35,10 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Link href="/activities" className="text-blue-600 hover:underline mb-6 inline-block">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PublicHeader />
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
+        <Link href="/activities" className="text-blue-600 hover:underline mb-6 inline-block">
         &larr; Quay lại danh sách
       </Link>
       
@@ -118,8 +121,9 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
               </div>
             )}
           </div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
