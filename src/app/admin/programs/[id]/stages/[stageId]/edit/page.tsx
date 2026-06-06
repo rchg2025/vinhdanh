@@ -10,8 +10,8 @@ import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function EditStagePage({ params }: { params: Promise<{ programId: string; stageId: string }> }) {
-  const { programId, stageId } = use(params);
+export default function EditStagePage({ params }: { params: Promise<{ id: string; stageId: string }> }) {
+  const { id: programId, stageId } = use(params);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);

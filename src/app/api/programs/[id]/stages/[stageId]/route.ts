@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ programId: string; stageId: string }> }
+  { params }: { params: Promise<{ id: string; stageId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -27,7 +27,7 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ programId: string; stageId: string }> }
+  { params }: { params: Promise<{ id: string; stageId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
