@@ -17,6 +17,14 @@ export default async function ActivitiesPage() {
       <div className="grid gap-6">
         {activities.map(activity => (
           <div key={activity.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition">
+            {activity.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img 
+                src={activity.imageUrl} 
+                alt={activity.title} 
+                className="w-full h-48 object-cover rounded-md mb-4"
+              />
+            )}
             <h2 className="text-xl font-semibold mb-2">{activity.title}</h2>
             <p className="text-gray-600 mb-4 line-clamp-2">{activity.description}</p>
             <div className="flex justify-between items-center text-sm text-gray-500 mb-4">

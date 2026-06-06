@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Upload, Image as ImageIcon } from "lucide-react";
 
 export default function NewActivityPage() {
   const router = useRouter();
@@ -17,16 +18,77 @@ export default function NewActivityPage() {
     startDate: "",
     endDate: "",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setImageFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleUpload = async (file: File) => {
+    const initRes = await fetch("/api/upload/init", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fileName: file.name,
+        mimeType: file.type || "application/octet-stream",
+        origin: window.location.origin,
+      }),
+    });
+
+    if (!initRes.ok) throw new Error("Không thể khởi tạo upload.");
+    const { uploadUrl } = await initRes.json();
+
+    const uploadRes = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": file.type || "application/octet-stream" },
+      body: file,
+    });
+
+    if (!uploadRes.ok) throw new Error("Upload lên Google Drive thất bại.");
+    const uploadData = await uploadRes.json().catch(() => ({}));
+    if (!uploadData.id) throw new Error("Không lấy được ID file sau khi upload.");
+
+    const finishRes = await fetch("/api/upload/finish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileId: uploadData.id }),
+    });
+
+    if (!finishRes.ok) throw new Error("Không thể hoàn tất upload.");
+    return finishRes.json();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      let imageUrl = null;
+
+      if (imageFile) {
+        setUploading(true);
+        toast.info("Đang tải ảnh đại diện lên Google Drive...");
+        const res = await handleUpload(imageFile);
+        imageUrl = res.url;
+      }
+      
+      setUploading(false);
+      toast.info("Đang tạo hoạt động...");
+
       const res = await fetch("/api/activities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, imageUrl }),
       });
 
       if (!res.ok) throw new Error("Gặp lỗi khi tạo hoạt động");
@@ -36,6 +98,7 @@ export default function NewActivityPage() {
       router.refresh();
     } catch (error: any) {
       toast.error(error.message);
+      setUploading(false);
     } finally {
       setLoading(false);
     }
@@ -68,6 +131,30 @@ export default function NewActivityPage() {
           />
         </div>
 
+        <div className="space-y-3">
+          <Label className="text-base font-semibold text-gray-800 flex items-center gap-2">
+            <ImageIcon size={18} className="text-indigo-500" />
+            Ảnh đại diện sự kiện
+          </Label>
+          <p className="text-xs text-gray-500">Kéo thả ảnh vào đây để làm banner/ảnh đại diện (tuỳ chọn).</p>
+
+          <div
+            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50 cursor-pointer"
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={() => document.getElementById('imageFile')?.click()}
+          >
+            <div className="space-y-1 text-center">
+              <Upload className="mx-auto h-10 w-10 text-gray-400" />
+              <div className="flex text-sm text-gray-600 justify-center">
+                <span className="font-medium text-indigo-600 hover:text-indigo-500 px-2 py-1">Kéo thả hoặc tải ảnh lên</span>
+                <input id="imageFile" type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && setImageFile(e.target.files[0])} />
+              </div>
+              {imageFile ? <p className="text-xs text-green-600 font-medium truncate max-w-[200px] mx-auto">{imageFile.name}</p> : <p className="text-xs text-gray-400">Dung lượng tải lên tối đa 10MB</p>}
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="startDate">Ngày bắt đầu</Label>
@@ -91,8 +178,8 @@ export default function NewActivityPage() {
           </div>
         </div>
 
-        <Button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700">
-          {loading ? "Đang xử lý..." : "Tạo hoạt động"}
+        <Button type="submit" disabled={loading || uploading} className="w-full bg-indigo-600 hover:bg-indigo-700">
+          {(loading || uploading) ? (uploading ? "Đang tải ảnh..." : "Đang xử lý...") : "Tạo hoạt động"}
         </Button>
       </form>
     </div>

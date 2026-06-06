@@ -37,6 +37,15 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
       
       <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
         <h1 className="text-3xl font-bold mb-4">{activity.title}</h1>
+
+        {activity.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img 
+            src={activity.imageUrl} 
+            alt={activity.title} 
+            className="w-full h-64 object-cover rounded-xl mb-6 shadow-sm"
+          />
+        )}
         
         <div className="flex gap-6 text-sm text-gray-600 mb-8 pb-6 border-b">
           <div>

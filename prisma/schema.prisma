@@ -121,6 +121,7 @@ model Activity {
   id            String   @id @default(cuid())
   title         String
   description   String?
+  imageUrl      String?
   startDate     DateTime
   endDate       DateTime
   registrations ActivityRegistration[]

@@ -22,12 +22,13 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    const { title, description, startDate, endDate } = data;
+    const { title, description, imageUrl, startDate, endDate } = data;
 
     const activity = await prisma.activity.create({
       data: {
         title,
         description,
+        imageUrl,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
       },
