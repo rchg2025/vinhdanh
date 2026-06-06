@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   if (!session) redirect("/login");
 
-  const [campaigns, myApplications] = await Promise.all([
+  const [campaigns, myApplications, myActivities] = await Promise.all([
     prisma.campaign.findMany({
       where: { endDate: { gte: new Date() } },
       orderBy: { createdAt: "desc" },
@@ -25,6 +25,11 @@ export default async function DashboardPage() {
     prisma.application.findMany({
       where: { userId: session.user.id },
       include: { campaign: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.activityRegistration.findMany({
+      where: { userId: session.user.id },
+      include: { activity: true },
       orderBy: { createdAt: "desc" },
     }),
   ]);
@@ -216,6 +221,70 @@ export default async function DashboardPage() {
                         </tr>
                       );
                     })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* My Activities Section */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              Hoạt động tình nguyện
+            </h2>
+            <Link href="/activities" className="text-indigo-600 hover:underline font-semibold text-sm">
+              Xem tất cả hoạt động &rarr;
+            </Link>
+          </div>
+          
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            {myActivities.length === 0 ? (
+              <div className="text-center py-20 flex flex-col items-center">
+                <div className="bg-gray-50 p-4 rounded-full text-gray-400 mb-4">
+                  <Archive size={32} />
+                </div>
+                <p className="text-gray-500 font-medium">Bạn chưa đăng ký tham gia hoạt động nào.</p>
+                <Link href="/activities" className="text-indigo-600 text-sm mt-2 hover:underline">
+                  Tìm và đăng ký hoạt động ngay
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-gray-50/80 border-b border-gray-100">
+                    <tr>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs">Tên hoạt động</th>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs">Thời gian</th>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs">Trạng thái</th>
+                      <th className="px-8 py-5 font-semibold text-gray-500 uppercase tracking-wider text-xs text-right">Báo cáo</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {myActivities.map((reg) => (
+                      <tr key={reg.id} className="hover:bg-gray-50/50 transition-colors group">
+                        <td className="px-8 py-5">
+                          <p className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{reg.activity.title}</p>
+                        </td>
+                        <td className="px-8 py-5 text-gray-500 font-medium">
+                          {new Date(reg.activity.startDate).toLocaleDateString("vi-VN")} - {new Date(reg.activity.endDate).toLocaleDateString("vi-VN")}
+                        </td>
+                        <td className="px-8 py-5">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                            Đã đăng ký
+                          </span>
+                        </td>
+                        <td className="px-8 py-5 text-right">
+                          <Link
+                            href={`/activities/${reg.activity.id}/report`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs shadow-sm"
+                          >
+                            <FileText size={12} /> Báo cáo kết quả
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

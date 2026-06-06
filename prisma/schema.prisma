@@ -33,9 +33,11 @@ model User {
   unit          Unit?     @relation(fields: [unitId], references: [id], onDelete: SetNull)
   class         Class?    @relation(fields: [classId], references: [id], onDelete: SetNull)
   role          Role      @default(USER)
-  applications  Application[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  applications           Application[]
+  activityRegistrations  ActivityRegistration[]
+  activityReports        ActivityReport[]
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 }
 
 model Campaign {
@@ -113,4 +115,46 @@ model Otp {
   type      String   // REGISTER or FORGOT_PASSWORD
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Activity {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  startDate     DateTime
+  endDate       DateTime
+  registrations ActivityRegistration[]
+  reports       ActivityReport[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum RegistrationStatus {
+  REGISTERED
+  CANCELLED
+}
+
+model ActivityRegistration {
+  id          String   @id @default(cuid())
+  userId      String
+  activityId  String
+  status      RegistrationStatus @default(REGISTERED)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity    Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, activityId])
+}
+
+model ActivityReport {
+  id            String   @id @default(cuid())
+  userId        String
+  activityId    String
+  content       String?
+  evidenceFiles Json?    // Array of file URLs/IDs
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity      Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
