@@ -155,14 +155,22 @@ export default function CertificateViewClient({ application, template }: { appli
             </div>
             <span className="font-bold text-gray-900 text-lg tracking-tight">Cổng thông tin Hoạt động Đoàn</span>
           </Link>
-          <button
-            onClick={handleDownload}
-            disabled={downloading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors font-medium text-sm"
-          >
-            <Download size={16} />
-            {downloading ? "Đang xuất..." : "Tải xuống PNG"}
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+            >
+              Về Dashboard
+            </Link>
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors font-medium text-sm"
+            >
+              <Download size={16} />
+              {downloading ? "Đang xuất..." : "Tải xuống PNG"}
+            </button>
+          </div>
         </div>
       </header>
 
