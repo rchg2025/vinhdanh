@@ -82,7 +82,7 @@ export default async function AdminReportsPage({
                   <td className="px-6 py-4">
                     <div className="font-medium">{report.user.name}</div>
                     <div className="text-xs text-gray-500">MSSV: {report.user.studentId || "Chưa cập nhật"}</div>
-                    <div className="text-xs text-gray-500">Tổ chức: {report.user.unit?.name || "Chưa cập nhật"}</div>
+                    <div className="text-xs text-gray-500">Đơn vị: {report.user.unit?.name || "Chưa cập nhật"}</div>
                   </td>
                   <td className="px-6 py-4 font-medium text-indigo-600">{report.activity.title}</td>
                   <td className="px-6 py-4 text-sm max-w-xs truncate">{report.content}</td>
