@@ -56,9 +56,9 @@ export default async function AdminProgramStagesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/programs" className="p-2 hover:bg-gray-100 rounded-full transition">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-4">
+          <Link href="/admin/programs" className="p-2 hover:bg-gray-100 rounded-full transition shrink-0 mt-1 sm:mt-0">
             <ArrowLeft size={20} className="text-gray-600" />
           </Link>
           <div>
@@ -66,11 +66,11 @@ export default async function AdminProgramStagesPage({
             <p className="text-sm text-gray-500 mt-1">Quản lý danh sách các chặng trong chương trình này.</p>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <ExportExcelButton endpoint={`/api/export/programs/${id}/stages`} filename={`Danh_sach_Chang_${id}`} />
           <Link
             href={`/admin/programs/${id}/stages/new`}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700 transition whitespace-nowrap"
           >
             <Plus size={16} /> Thêm chặng
           </Link>
@@ -81,8 +81,8 @@ export default async function AdminProgramStagesPage({
         <AdminSearchFilter placeholder="Tìm theo tên chặng..." />
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm text-left">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full text-sm text-left min-w-[800px]">
           <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-200">
             <tr>
               <th className="px-6 py-4">Tên chặng</th>

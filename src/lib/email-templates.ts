@@ -1,7 +1,7 @@
 export const emailTemplates = {
   // 1. Đăng ký tài khoản (OTP)
   registerOtp: (code: string) => ({
-    subject: "Mã OTP kích hoạt tài khoản Vinh Danh Trực Tuyến",
+    subject: "Mã OTP kích hoạt tài khoản Cổng thông tin Hoạt động Đoàn",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -9,7 +9,7 @@ export const emailTemplates = {
           <h3>Kích hoạt tài khoản</h3>
         </div>
         <p>Chào bạn,</p>
-        <p>Bạn đã đăng ký tài khoản trên hệ thống Vinh Danh Trực Tuyến. Vui lòng sử dụng mã OTP dưới đây để kích hoạt tài khoản của bạn:</p>
+        <p>Bạn đã đăng ký tài khoản trên Cổng thông tin Hoạt động Đoàn. Vui lòng sử dụng mã OTP dưới đây để kích hoạt tài khoản của bạn:</p>
         <div style="text-align: center; margin: 30px 0;">
           <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1a56db; background: #f3f4f6; padding: 10px 20px; border-radius: 5px;">${code}</span>
         </div>
@@ -23,7 +23,7 @@ export const emailTemplates = {
 
   // 2. Quên mật khẩu (OTP)
   forgotPasswordOtp: (code: string) => ({
-    subject: "Mã OTP đặt lại mật khẩu Vinh Danh Trực Tuyến",
+    subject: "Mã OTP đặt lại mật khẩu Cổng thông tin Hoạt động Đoàn",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 20px;">

@@ -31,7 +31,7 @@ export function AdminSidebar({ user }: { user: any }) {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-sm p-1">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
-          <h1 className="font-bold text-gray-900 text-lg leading-tight">Vinh Danh</h1>
+          <h1 className="font-bold text-gray-900 text-lg leading-tight">Hoạt động Đoàn</h1>
         </div>
         <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-md">
           <Menu size={24} />
@@ -55,7 +55,7 @@ export function AdminSidebar({ user }: { user: any }) {
               <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="font-bold text-gray-900 leading-tight">Vinh Danh</h1>
+              <h1 className="font-bold text-gray-900 leading-tight">Hoạt động Đoàn</h1>
               <p className="text-gray-500 text-xs font-medium">Admin Panel</p>
             </div>
           </div>

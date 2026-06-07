@@ -63,7 +63,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-xl shadow-indigo-200/50 mb-6 overflow-hidden p-2">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Vinh Danh Online</h1>
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Cổng thông tin Hoạt động Đoàn</h1>
           <p className="text-gray-500 font-medium mt-2">Hệ thống cấp giấy khen số</p>
         </div>
 

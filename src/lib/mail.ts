@@ -32,7 +32,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
     });
 
     const info = await transporter.sendMail({
-      from: `"Hệ Thống Vinh Danh" <${config.SMTP_USER}>`,
+      from: `"Cổng thông tin Hoạt động Đoàn" <${config.SMTP_USER}>`,
       to,
       subject,
       html,

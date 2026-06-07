@@ -33,7 +33,11 @@ export default async function AdminReportsPage({
       skip,
       take: limit,
       include: {
-        user: true,
+        user: {
+          include: {
+            unit: true
+          }
+        },
         activity: true,
       }
     }).catch(() => []),
@@ -44,11 +48,11 @@ export default async function AdminReportsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Quản lý Báo cáo hoạt động</h1>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <ExportExcelButton endpoint="/api/export/reports" filename="Danh_sach_Bao_cao" />
         </div>
       </div>
@@ -57,8 +61,8 @@ export default async function AdminReportsPage({
         <AdminSearchFilter placeholder="Tìm theo người đăng, nội dung, hoặc hoạt động..." />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th className="px-6 py-3 font-semibold text-gray-700 text-sm">Người báo cáo</th>
@@ -77,7 +81,8 @@ export default async function AdminReportsPage({
                 <tr key={report.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="font-medium">{report.user.name}</div>
-                    <div className="text-xs text-gray-500">{report.user.email}</div>
+                    <div className="text-xs text-gray-500">MSSV: {report.user.studentId || "Chưa cập nhật"}</div>
+                    <div className="text-xs text-gray-500">Tổ chức: {report.user.unit?.name || "Chưa cập nhật"}</div>
                   </td>
                   <td className="px-6 py-4 font-medium text-indigo-600">{report.activity.title}</td>
                   <td className="px-6 py-4 text-sm max-w-xs truncate">{report.content}</td>

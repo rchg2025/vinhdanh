@@ -45,18 +45,18 @@ export default async function AdminProgramsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Chương trình lớn</h1>
           <p className="text-sm text-gray-500 mt-1">
             Tạo các Chương trình lớn (VD: Mùa hè xanh) và thêm các Chặng vào trong chương trình.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <ExportExcelButton endpoint="/api/export/programs" filename="Danh_sach_Chuong_trinh" />
           <Link
             href="/admin/programs/new"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700 transition whitespace-nowrap"
           >
             <Plus size={16} /> Thêm chương trình
           </Link>
@@ -67,8 +67,8 @@ export default async function AdminProgramsPage({
         <AdminSearchFilter placeholder="Tìm theo tên chương trình..." />
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm text-left">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full text-sm text-left min-w-[800px]">
           <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-200">
             <tr>
               <th className="px-6 py-4">Tên chương trình</th>

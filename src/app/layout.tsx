@@ -11,7 +11,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Vinh Danh Trực Tuyến - Trường Cao đẳng Bách Khoa Nam Sài Gòn",
+  title: "Cổng thông tin Hoạt động Đoàn - Trường Cao đẳng Bách Khoa Nam Sài Gòn",
   description: "Hệ thống Vinh danh & Cấp giấy khen tự động dành cho sinh viên Trường Cao đẳng Bách Khoa Nam Sài Gòn.",
 };
 

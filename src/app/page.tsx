@@ -46,7 +46,7 @@ export default async function Home() {
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-5">
         <div className="text-white font-bold text-xl tracking-tight flex items-center gap-2">
           <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
-          <span>Vinh Danh <span className="font-light opacity-80">Online</span></span>
+          <span>Cổng thông tin <span className="font-light opacity-80">Hoạt động Đoàn</span></span>
         </div>
         <div className="hidden md:flex items-center gap-6">
           <Link href="/activities" className="text-sm font-medium text-white/90 hover:text-white transition-colors">

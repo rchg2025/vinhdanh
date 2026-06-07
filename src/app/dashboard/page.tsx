@@ -43,7 +43,7 @@ export default async function DashboardPage() {
             <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 rounded-xl shadow-md flex items-center justify-center w-9 h-9">
               <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold text-gray-900 text-lg hidden sm:block tracking-tight">Vinh Danh Online</span>
+            <span className="font-bold text-gray-900 text-lg hidden sm:block tracking-tight">Cổng thông tin Hoạt động Đoàn</span>
           </div>
           <div className="flex items-center gap-3 sm:gap-5">
             <Link

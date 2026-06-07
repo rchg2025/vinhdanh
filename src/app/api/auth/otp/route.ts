@@ -30,18 +30,18 @@ export async function POST(req: Request) {
       data: { email, code, type, expiresAt }
     });
 
-    const subject = "Mã xác thực OTP - Vinh Danh Online";
+    const subject = "Mã xác thực OTP - Cổng thông tin Hoạt động Đoàn";
     const html = `
       <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
         <h2 style="color: #333;">Xin chào,</h2>
-        <p style="color: #555;">Bạn đã yêu cầu mã xác thực OTP từ hệ thống Vinh Danh Online.</p>
+        <p style="color: #555;">Bạn đã yêu cầu mã xác thực OTP từ Cổng thông tin Hoạt động Đoàn.</p>
         <p style="color: #555;">Mã xác thực của bạn là:</p>
         <div style="background-color: #f4f4f5; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
           <h1 style="font-size: 36px; letter-spacing: 5px; color: #4F46E5; margin: 0;">${code}</h1>
         </div>
         <p style="color: #ef4444; font-size: 14px;">Mã này có hiệu lực trong 15 phút. Tuyệt đối không chia sẻ mã này cho bất kỳ ai.</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-        <p style="color: #888; font-size: 12px;">Trân trọng,<br/>Hệ thống Vinh Danh Online</p>
+        <p style="color: #888; font-size: 12px;">Trân trọng,<br/>Cổng thông tin Hoạt động Đoàn</p>
       </div>
     `;
 

@@ -41,15 +41,15 @@ export default async function AdminActivitiesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Quản lý Hoạt động</h1>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <ExportExcelButton endpoint="/api/export/activities" filename="Danh_sach_Hoat_dong" />
           <Link 
             href="/admin/activities/new"
-            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 whitespace-nowrap"
           >
             <Plus size={18} /> Đăng hoạt động
           </Link>
@@ -60,8 +60,8 @@ export default async function AdminActivitiesPage({
         <AdminSearchFilter placeholder="Tìm theo tên hoạt động..." />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th className="px-6 py-3 font-semibold text-gray-700 text-sm">Tên hoạt động</th>

@@ -14,7 +14,7 @@ export default async function PublicHeader() {
             <Link href="/" className="flex items-center gap-2">
               <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
               <span className="font-bold text-xl text-gray-900 hidden sm:block">
-                Vinh Danh <span className="font-light text-gray-500">Online</span>
+                Cổng thông tin Hoạt động Đoàn
               </span>
             </Link>
           </div>

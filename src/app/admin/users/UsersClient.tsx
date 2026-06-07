@@ -230,7 +230,7 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Thành viên</h1>
           <p className="text-gray-500 mt-1">Xem, thêm, sửa và xóa tài khoản người dùng</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-3">
           <Button 
             variant="outline" 
             onClick={handleDownloadTemplate} 
@@ -300,7 +300,7 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full text-left min-w-[800px]">
             <thead className="bg-gray-50 text-gray-600 text-sm border-b border-gray-200 uppercase tracking-wider">
               <tr>
                 <th className="px-6 py-4 font-semibold">Tên & Email</th>
