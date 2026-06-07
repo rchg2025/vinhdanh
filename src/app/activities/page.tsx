@@ -31,7 +31,7 @@ export default async function ActivitiesPage() {
       <PublicHeader />
 
       <main className="flex-1 container mx-auto px-4 py-8 w-full">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-10 text-center uppercase tracking-tight">Hoạt động tình nguyện</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-10 text-center uppercase tracking-tight">Hoạt động</h1>
         
         <ActivitiesClient programs={programs} standaloneActivities={standaloneActivities} />
       </main>

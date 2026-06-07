@@ -232,7 +232,7 @@ export default async function DashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-              Hoạt động tình nguyện
+              Hoạt động
             </h2>
             <Link href="/activities" className="text-indigo-600 hover:underline font-semibold text-sm">
               Xem tất cả hoạt động &rarr;

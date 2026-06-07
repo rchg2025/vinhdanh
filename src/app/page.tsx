@@ -50,7 +50,7 @@ export default async function Home() {
         </div>
         <div className="hidden md:flex items-center gap-6">
           <Link href="/activities" className="text-sm font-medium text-white/90 hover:text-white transition-colors">
-            Hoạt Động Tình Nguyện
+            Hoạt Động
           </Link>
           <Link href="/campaigns" className="text-sm font-medium text-white/90 hover:text-white transition-colors">
             Các Đợt Xét Duyệt
@@ -112,7 +112,7 @@ export default async function Home() {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed text-center">
-            Hệ thống tích hợp <strong>Đăng ký & Báo cáo hoạt động tình nguyện</strong> cùng chức năng <strong>Vinh danh & Cấp giấy khen tự động</strong> dành cho sinh viên Trường Cao đẳng Bách Khoa Nam Sài Gòn.
+            Hệ thống tích hợp <strong>Đăng ký & Báo cáo hoạt động</strong> cùng chức năng <strong>Vinh danh & Cấp giấy khen tự động</strong> dành cho sinh viên Trường Cao đẳng Bách Khoa Nam Sài Gòn.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -136,7 +136,7 @@ export default async function Home() {
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform cursor-default">
             <div className="text-4xl mb-4">🤝</div>
             <h3 className="font-bold text-lg text-gray-800 mb-2">Đăng ký tham gia</h3>
-            <p className="text-sm text-gray-500">Dễ dàng theo dõi và đăng ký các hoạt động tình nguyện do Nhà trường và Đoàn thanh niên tổ chức.</p>
+            <p className="text-sm text-gray-500">Dễ dàng theo dõi và đăng ký các hoạt động do Nhà trường và Đoàn thanh niên tổ chức.</p>
           </div>
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform cursor-default">
             <div className="text-4xl mb-4">📸</div>
@@ -161,8 +161,8 @@ export default async function Home() {
         <section className="relative z-10 px-6 md:px-12 pb-16 pt-8">
           <div className="w-full mx-auto">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">🔥 Hoạt Động Tình Nguyện Mới</h2>
-              <p className="text-white/80">Tham gia và đóng góp cho các chương trình tình nguyện ý nghĩa</p>
+              <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">🔥 Hoạt Động Mới</h2>
+              <p className="text-white/80">Tham gia và đóng góp cho các hoạt động ý nghĩa</p>
             </div>
             
             <HomeProgramsSlider programs={JSON.parse(JSON.stringify(programs))} />
