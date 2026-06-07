@@ -25,6 +25,8 @@ type UnitData = {
 export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[] }) {
   const [units, setUnits] = useState<UnitData[]>(initialUnits);
   const [isImporting, setIsImporting] = useState(false);
+  const [isSavingUnit, setIsSavingUnit] = useState(false);
+  const [isSavingClass, setIsSavingClass] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
@@ -90,6 +92,8 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
 
   const handleSaveUnit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSavingUnit(true);
+    const loadingId = toast.loading("Đang lưu đơn vị...");
     try {
       const url = editingUnit ? `/api/units/${editingUnit.id}` : "/api/units";
       const method = editingUnit ? "PUT" : "POST";
@@ -105,20 +109,24 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
 
       if (editingUnit) {
         setUnits(units.map(u => u.id === updated.id ? { ...u, ...updated } : u));
-        toast.success("Cập nhật đơn vị thành công!");
+        toast.success("Cập nhật đơn vị thành công!", { id: loadingId });
       } else {
         setUnits([{ ...updated, classes: [], createdAt: new Date(updated.createdAt) }, ...units]);
-        toast.success("Tạo đơn vị mới thành công!");
+        toast.success("Tạo đơn vị mới thành công!", { id: loadingId });
       }
       setIsUnitModalOpen(false);
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message, { id: loadingId });
+    } finally {
+      setIsSavingUnit(false);
     }
   };
 
   const handleSaveClass = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUnitIdToClass) return;
+    setIsSavingClass(true);
+    const loadingId = toast.loading("Đang lưu lớp...");
     try {
       const url = editingClass ? `/api/classes/${editingClass.id}` : "/api/classes";
       const method = editingClass ? "PUT" : "POST";
@@ -144,10 +152,12 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
         return u;
       }));
 
-      toast.success(editingClass ? "Cập nhật lớp thành công!" : "Tạo lớp mới thành công!");
+      toast.success(editingClass ? "Cập nhật lớp thành công!" : "Tạo lớp mới thành công!", { id: loadingId });
       setIsClassModalOpen(false);
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message, { id: loadingId });
+    } finally {
+      setIsSavingClass(false);
     }
   };
 
@@ -421,8 +431,10 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
               </form>
             </div>
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setIsUnitModalOpen(false)}>Hủy</Button>
-              <Button type="submit" form="unit-form" className="bg-indigo-600 hover:bg-indigo-700 text-white">Lưu</Button>
+              <Button type="button" variant="outline" onClick={() => setIsUnitModalOpen(false)} disabled={isSavingUnit}>Hủy</Button>
+              <Button type="submit" form="unit-form" disabled={isSavingUnit} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                {isSavingUnit ? "Đang lưu..." : "Lưu"}
+              </Button>
             </div>
           </div>
         </div>
@@ -449,8 +461,10 @@ export default function UnitsClient({ initialUnits }: { initialUnits: UnitData[]
               </form>
             </div>
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setIsClassModalOpen(false)}>Hủy</Button>
-              <Button type="submit" form="class-form" className="bg-indigo-600 hover:bg-indigo-700 text-white">Lưu</Button>
+              <Button type="button" variant="outline" onClick={() => setIsClassModalOpen(false)} disabled={isSavingClass}>Hủy</Button>
+              <Button type="submit" form="class-form" disabled={isSavingClass} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                {isSavingClass ? "Đang lưu..." : "Lưu"}
+              </Button>
             </div>
           </div>
         </div>

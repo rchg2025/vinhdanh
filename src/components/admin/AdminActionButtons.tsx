@@ -22,6 +22,7 @@ export default function AdminActionButtons({ editUrl, deleteEndpoint, itemName =
       return;
     }
 
+    const loadingToastId = toast.loading("Đang xóa...");
     setIsDeleting(true);
     try {
       const res = await fetch(deleteEndpoint, { method: "DELETE" });
@@ -29,10 +30,10 @@ export default function AdminActionButtons({ editUrl, deleteEndpoint, itemName =
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Có lỗi xảy ra khi xóa");
       }
-      toast.success("Xóa thành công!");
+      toast.success("Xóa thành công!", { id: loadingToastId });
       router.refresh();
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message, { id: loadingToastId });
     } finally {
       setIsDeleting(false);
     }

@@ -31,6 +31,7 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Form State
@@ -99,6 +100,8 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
+    const loadingId = toast.loading("Đang xử lý...");
     try {
       const url = editingUser ? `/api/users/${editingUser.id}` : "/api/users";
       const method = editingUser ? "PUT" : "POST";
@@ -130,14 +133,16 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
 
       if (editingUser) {
         setUsers(users.map(u => u.id === completeUser.id ? { ...u, ...completeUser } : u));
-        toast.success("Cập nhật thành công!");
+        toast.success("Cập nhật thành công!", { id: loadingId });
       } else {
         setUsers([completeUser, ...users]);
-        toast.success("Tạo tài khoản thành công!");
+        toast.success("Tạo tài khoản thành công!", { id: loadingId });
       }
       setIsModalOpen(false);
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message, { id: loadingId });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -493,8 +498,10 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
             </div>
             
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 shrink-0">
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Hủy</Button>
-              <Button type="submit" form="user-form" className="bg-indigo-600 hover:bg-indigo-700 text-white">Lưu thông tin</Button>
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} disabled={isSaving}>Hủy</Button>
+              <Button type="submit" form="user-form" disabled={isSaving} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                {isSaving ? "Đang lưu..." : "Lưu thông tin"}
+              </Button>
             </div>
           </div>
         </div>
