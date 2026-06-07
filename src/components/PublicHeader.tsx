@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { HomeLogoutButton } from "@/components/LogoutButton";
+import { HeaderLogoutButton } from "@/components/LogoutButton";
 
 export default async function PublicHeader() {
   const session = await getServerSession(authOptions);
@@ -41,7 +41,7 @@ export default async function PublicHeader() {
                 </Link>
                 <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
                 <div className="hidden sm:block">
-                  <HomeLogoutButton />
+                  <HeaderLogoutButton />
                 </div>
               </div>
             ) : (
