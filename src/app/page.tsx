@@ -67,9 +67,15 @@ export default async function Home() {
                   <p className="text-sm font-semibold text-white group-hover:text-indigo-200 transition-colors">{session.user.name}</p>
                   <p className="text-xs text-white/70">{session.user.email}</p>
                 </div>
-                <div className="w-9 h-9 rounded-full bg-indigo-600 flex flex-shrink-0 items-center justify-center text-white text-sm font-bold shadow-sm border border-white/30">
-                  {session.user.name?.charAt(0).toUpperCase() || "U"}
-                </div>
+                <Link href="/dashboard" className="flex items-center gap-2 group">
+                  {session.user.image ? (
+                    <img src={session.user.image} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-white/20" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold shadow-sm border border-white/10 group-hover:bg-white/30 transition-colors">
+                      {session.user.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                </Link>
               </Link>
               <div className="w-px h-6 bg-white/20 mx-1"></div>
               <HomeLogoutButton />

@@ -35,9 +35,13 @@ export default async function PublicHeader() {
             {session ? (
               <div className="flex items-center gap-3">
                 <Link href="/dashboard" className="flex items-center gap-2 group">
-                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
-                    {session.user.name?.charAt(0).toUpperCase() || "U"}
-                  </div>
+                  {session.user.image ? (
+                    <img src={session.user.image} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-200" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                      {session.user.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
                 </Link>
                 <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
                 <div className="hidden sm:block">

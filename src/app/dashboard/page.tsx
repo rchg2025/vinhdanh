@@ -65,9 +65,15 @@ export default async function DashboardPage() {
                 <span className="text-sm font-semibold text-gray-900">{session.user.name}</span>
                 <span className="text-xs text-gray-500">{session.user.email}</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md border-2 border-white">
-                {session.user.name?.charAt(0).toUpperCase() || "U"}
-              </div>
+              <Link href="/dashboard/profile" className="flex items-center gap-2 group cursor-pointer hover:opacity-80 transition-opacity">
+                {session.user.image ? (
+                  <img src={session.user.image} alt="Avatar" className="w-10 h-10 rounded-full object-cover shadow-md border-2 border-white flex-shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md border-2 border-white flex-shrink-0">
+                    {session.user.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
+              </Link>
             </div>
             <div className="pl-4 border-l border-gray-100 flex items-center">
               <HeaderLogoutButton />

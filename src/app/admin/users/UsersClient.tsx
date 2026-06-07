@@ -342,9 +342,13 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
                 <tr key={user.id} className="hover:bg-gray-50/50 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200 shrink-0">
-                        {user.name?.charAt(0).toUpperCase() || <User size={18} />}
-                      </div>
+                      {user.image ? (
+                        <img src={user.image} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200 shrink-0">
+                          {user.name?.charAt(0).toUpperCase() || <User size={18} />}
+                        </div>
+                      )}
                       <div>
                         <div className="font-bold text-gray-900">{user.name || "Chưa cập nhật"}</div>
                         <div className="text-sm text-gray-500">{user.email || "Chưa có email"}</div>

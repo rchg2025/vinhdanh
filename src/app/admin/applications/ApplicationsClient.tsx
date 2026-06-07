@@ -8,7 +8,7 @@ import { DeleteApplicationButton } from "./delete-button";
 
 type AppData = {
   id: string;
-  user: { name: string | null; studentId: string | null };
+  user: { name: string | null; studentId: string | null; image?: string | null };
   campaign: { title: string };
   status: string;
   data: any;
@@ -87,9 +87,13 @@ export default function ApplicationsClient({ initialApplications }: { initialApp
                   <tr key={app.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs shrink-0">
-                          {app.user.name?.charAt(0).toUpperCase() || "U"}
-                        </div>
+                        {app.user.image ? (
+                          <img src={app.user.image} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-200 shrink-0" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs shrink-0">
+                            {app.user.name?.charAt(0).toUpperCase() || "U"}
+                          </div>
+                        )}
                         <div>
                           <div className="font-bold text-gray-900">{app.user.name}</div>
                           <div className="text-gray-500 text-xs font-medium">MSSV: {app.user.studentId || "Chưa cập nhật"}</div>

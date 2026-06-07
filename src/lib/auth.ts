@@ -85,6 +85,20 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
+
+        // Fetch fresh user data (name, image) to keep session updated after profile edits
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { name: true, image: true }
+          });
+          if (dbUser) {
+            session.user.name = dbUser.name;
+            session.user.image = dbUser.image;
+          }
+        } catch (e) {
+          console.error("Lỗi lấy thông tin session:", e);
+        }
       }
       return session;
     }

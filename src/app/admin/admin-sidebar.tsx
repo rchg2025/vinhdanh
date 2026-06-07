@@ -96,9 +96,13 @@ export function AdminSidebar({ user }: { user: any }) {
             <ArrowLeft size={16} /> Về trang chủ
           </Link>
           <div className="flex items-center gap-3 px-2 py-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex flex-shrink-0 items-center justify-center text-white text-sm font-bold shadow-sm">
-              {user.name?.charAt(0).toUpperCase() || "A"}
-            </div>
+            {user.image ? (
+              <img src={user.image} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-200 flex-shrink-0" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0">
+                {user.name?.charAt(0).toUpperCase() || "A"}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
               <p className="text-xs text-gray-500 truncate">{user.email}</p>

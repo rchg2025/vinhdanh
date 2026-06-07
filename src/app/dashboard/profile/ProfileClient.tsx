@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { UserRound } from "lucide-react";
+import { UserRound, Camera, Loader2 } from "lucide-react";
 
 type UnitData = {
   id: string;
@@ -17,6 +17,7 @@ type ProfileData = {
   studentId: string | null;
   unitId: string | null;
   classId: string | null;
+  image?: string | null;
 };
 
 export default function ProfileClient({ initialUser, units }: { initialUser: ProfileData, units: UnitData[] }) {
@@ -29,6 +30,8 @@ export default function ProfileClient({ initialUser, units }: { initialUser: Pro
     confirmPassword: "", 
   });
   const [loading, setLoading] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const availableClasses = useMemo(() => {
     if (!formData.unitId) return [];
@@ -68,11 +71,61 @@ export default function ProfileClient({ initialUser, units }: { initialUser: Pro
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUploadingAvatar(true);
+    const toastId = toast.loading("Đang tải ảnh lên...");
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+
+      const res = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body: uploadData,
+      });
+
+      if (!res.ok) {
+        throw new Error((await res.json()).error || "Không thể tải ảnh lên");
+      }
+
+      toast.success("Cập nhật ảnh đại diện thành công!", { id: toastId });
+      window.location.reload();
+    } catch (err: any) {
+      toast.error(err.message, { id: toastId });
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="p-6 border-b border-gray-100 flex items-center gap-4">
-        <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center text-indigo-700 text-2xl font-bold border border-indigo-200">
-          {initialUser.name ? initialUser.name.charAt(0).toUpperCase() : <UserRound />}
+        <div 
+          className="relative w-16 h-16 rounded-full group cursor-pointer flex-shrink-0 bg-gray-100"
+          onClick={() => !isUploadingAvatar && fileInputRef.current?.click()}
+        >
+          {initialUser.image ? (
+            <img src={initialUser.image} alt="Avatar" className="w-16 h-16 rounded-full object-cover border border-gray-200" />
+          ) : (
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center text-indigo-700 text-2xl font-bold border border-indigo-200">
+              {initialUser.name ? initialUser.name.charAt(0).toUpperCase() : <UserRound />}
+            </div>
+          )}
+          
+          <div className={`absolute inset-0 bg-black/40 rounded-full flex items-center justify-center transition-opacity ${isUploadingAvatar ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+            {isUploadingAvatar ? <Loader2 size={20} className="text-white animate-spin" /> : <Camera size={20} className="text-white" />}
+          </div>
+          
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="image/*"
+            onChange={handleAvatarUpload}
+          />
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900">{initialUser.name}</h2>
