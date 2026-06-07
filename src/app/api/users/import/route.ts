@@ -25,17 +25,32 @@ export async function POST(req: Request) {
       (await prisma.user.findMany({ select: { email: true } })).map((u) => u.email)
     );
 
+    // Lấy danh sách đơn vị và lớp để đối chiếu
+    const dbUnits = await prisma.unit.findMany({ include: { classes: true } });
+
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
-      const { name, email, studentId, password } = user;
+      const { name, email, studentId, password, unitName, className } = user;
 
-      if (!email) {
-        errors.push(`Row ${i + 1}: Thiếu email`);
+      if (!email || !unitName || !className) {
+        errors.push(`Row ${i + 1}: Thiếu email, đơn vị hoặc lớp`);
         continue;
       }
 
       if (existingEmails.has(email)) {
         errors.push(`Row ${i + 1}: Email ${email} đã tồn tại`);
+        continue;
+      }
+
+      const unit = dbUnits.find(u => u.name.toLowerCase() === unitName.trim().toLowerCase());
+      if (!unit) {
+        errors.push(`Row ${i + 1}: Đơn vị '${unitName}' không tồn tại trong hệ thống`);
+        continue;
+      }
+
+      const cls = unit.classes.find(c => c.name.toLowerCase() === className.trim().toLowerCase());
+      if (!cls) {
+        errors.push(`Row ${i + 1}: Lớp '${className}' không tồn tại trong đơn vị '${unitName}'`);
         continue;
       }
 
@@ -48,8 +63,14 @@ export async function POST(req: Request) {
             email: email.toString(),
             studentId: studentId ? studentId.toString() : null,
             password: hashedPassword,
+            unitId: unit.id,
+            classId: cls.id,
             role: "USER",
           },
+          include: {
+            unit: { select: { name: true } },
+            class: { select: { name: true } }
+          }
         });
 
         existingEmails.add(email.toString());

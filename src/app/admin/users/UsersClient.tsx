@@ -175,7 +175,9 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
           email: row[1]?.toString() || "",
           studentId: row[2]?.toString() || "",
           password: row[3]?.toString() || "123456", // default password if missing
-        })).filter(u => u.email); // Must have email
+          unitName: row[4]?.toString() || "",
+          className: row[5]?.toString() || "",
+        })).filter(u => u.email && u.unitName && u.className); // Must have email, unit, class
 
         if (importedUsers.length === 0) {
           toast.error("Không tìm thấy dữ liệu hợp lệ trong file Excel.");
@@ -213,13 +215,27 @@ export default function UsersClient({ initialUsers, units }: { initialUsers: any
   };
 
   const handleDownloadTemplate = () => {
-    const ws = XLSX.utils.aoa_to_sheet([
-      ["Họ và Tên", "Email", "MSSV", "Mật khẩu (Mặc định: 123456)"],
-      ["Nguyễn Văn A", "nva@student.vn", "3123456", "123456"],
-      ["Trần Thị B", "ttb@student.vn", "3123457", ""]
+    const wsUsers = XLSX.utils.aoa_to_sheet([
+      ["Họ và Tên", "Email", "MSSV", "Mật khẩu (Mặc định: 123456)", "Tên Đơn vị", "Tên Lớp"],
+      ["Nguyễn Văn A", "nva@student.vn", "3123456", "123456", units[0]?.name || "Khoa CNTT", units[0]?.classes[0]?.name || "Lớp 1"],
+      ["Trần Thị B", "ttb@student.vn", "3123457", "", units[0]?.name || "Khoa CNTT", units[0]?.classes[1]?.name || "Lớp 2"]
     ]);
+
+    const unitClassData = [["Tên Đơn vị", "Tên Lớp"]];
+    units.forEach(unit => {
+      if (unit.classes.length === 0) {
+        unitClassData.push([unit.name, ""]);
+      } else {
+        unit.classes.forEach(cls => {
+          unitClassData.push([unit.name, cls.name]);
+        });
+      }
+    });
+    const wsUnits = XLSX.utils.aoa_to_sheet(unitClassData);
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Users");
+    XLSX.utils.book_append_sheet(wb, wsUsers, "Users");
+    XLSX.utils.book_append_sheet(wb, wsUnits, "Danh_sach_Don_vi_Lop");
     XLSX.writeFile(wb, "mau_import_thanh_vien.xlsx");
   };
 
