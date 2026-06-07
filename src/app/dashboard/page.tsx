@@ -32,6 +32,16 @@ export default async function DashboardPage() {
       include: { activity: true },
       orderBy: { createdAt: "desc" },
     }).catch(() => []),
+    prisma.activity.findMany({
+      where: {
+        OR: [
+          { registrationEndDate: { gte: new Date() } },
+          { registrationEndDate: null, startDate: { gte: new Date() } }
+        ]
+      },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    }).catch(() => []),
   ]);
 
   return (
@@ -100,7 +110,7 @@ export default async function DashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-              Mở đăng ký xét duyệt
+              Mở đăng ký xét duyệt vinh danh
             </h2>
           </div>
           
@@ -139,6 +149,60 @@ export default async function DashboardPage() {
                       className="flex items-center justify-center gap-2 w-full py-3 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition-all shadow-sm"
                     >
                       Nộp hồ sơ ngay <ChevronRight size={16} />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Open Activities Section */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              Các hoạt động đang mở
+            </h2>
+            <Link href="/activities" className="text-indigo-600 hover:underline font-semibold text-sm">
+              Xem tất cả hoạt động &rarr;
+            </Link>
+          </div>
+          
+          {openActivities.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 flex flex-col items-center">
+              <div className="bg-gray-50 p-4 rounded-full text-gray-400 mb-4">
+                <Archive size={32} />
+              </div>
+              <p className="text-gray-500 font-medium">Hiện tại không có hoạt động nào đang mở.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {openActivities.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden"
+                >
+                  <div className="p-6 flex flex-col flex-1 relative">
+                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-5">
+                      <Trophy size={24} />
+                    </div>
+                    <h3 className="font-bold text-xl text-gray-900 mb-3 leading-tight group-hover:text-indigo-600 transition-colors">
+                      {activity.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm line-clamp-3 mb-6 flex-1">
+                      {activity.description || "Nhấn để xem chi tiết hoạt động này."}
+                    </p>
+                    
+                    <div className="flex items-center gap-2 text-xs font-medium text-gray-500 bg-gray-50/80 px-3 py-2 rounded-lg mb-6 w-fit border border-gray-100">
+                      <Clock size={14} className="text-indigo-500" />
+                      <span>Bắt đầu: {new Date(activity.startDate).toLocaleDateString("vi-VN")}</span>
+                    </div>
+
+                    <Link
+                      href={`/activities/${activity.id}`}
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition-all shadow-sm"
+                    >
+                      Xem chi tiết <ChevronRight size={16} />
                     </Link>
                   </div>
                 </div>
