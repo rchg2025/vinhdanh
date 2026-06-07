@@ -90,7 +90,7 @@ export default function ReportCharts({ data }: { data: ChartData }) {
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value: number) => [`${value} báo cáo`, 'Số lượng']}
+                  formatter={(value: any) => [`${value} báo cáo`, 'Số lượng']}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '12px' }} />
