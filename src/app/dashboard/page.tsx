@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   if (!session) redirect("/login");
 
-  const [campaigns, myApplications, myActivities] = await Promise.all([
+  const [campaigns, myApplications, myActivities, openActivities] = await Promise.all([
     prisma.campaign.findMany({
       where: { endDate: { gte: new Date() } },
       orderBy: { createdAt: "desc" },
