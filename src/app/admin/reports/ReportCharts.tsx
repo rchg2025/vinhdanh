@@ -82,7 +82,7 @@ export default function ReportCharts({ data }: { data: ChartData }) {
                   paddingAngle={2}
                   dataKey="count"
                   nameKey="name"
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => percent ? `${(percent * 100).toFixed(0)}%` : ''}
                   labelLine={false}
                 >
                   {data.programStats.map((entry, index) => (
