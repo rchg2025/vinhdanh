@@ -6,6 +6,7 @@ import AdminPagination from "@/components/admin/AdminPagination";
 import ExportExcelButton from "@/components/admin/ExportExcelButton";
 import AdminActionButtons from "@/components/admin/AdminActionButtons";
 import DownloadAllButton from "./DownloadAllButton";
+import ReportCharts, { ChartData } from "./ReportCharts";
 
 export default async function AdminReportsPage({
   searchParams,
@@ -26,7 +27,7 @@ export default async function AdminReportsPage({
     ]
   } : {};
 
-  const [reports, total] = await Promise.all([
+  const [reports, total, allReportsForCharts] = await Promise.all([
     prisma.activityReport.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -41,10 +42,44 @@ export default async function AdminReportsPage({
         activity: true,
       }
     }).catch(() => []),
-    prisma.activityReport.count({ where }).catch(() => 0)
+    prisma.activityReport.count({ where }).catch(() => 0),
+    prisma.activityReport.findMany({
+      include: {
+        user: { include: { unit: true } },
+        activity: { include: { stage: { include: { program: true } } } }
+      }
+    }).catch(() => [])
   ]);
 
   const totalPages = Math.ceil(total / limit);
+
+  // Compute charts data
+  const unitMap = new Map<string, number>();
+  const activityMap = new Map<string, number>();
+  const stageMap = new Map<string, number>();
+  const programMap = new Map<string, number>();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  allReportsForCharts.forEach((r: any) => {
+    const unitName = r.user?.unit?.name || "Khác";
+    unitMap.set(unitName, (unitMap.get(unitName) || 0) + 1);
+
+    const activityName = r.activity?.title || "Khác";
+    activityMap.set(activityName, (activityMap.get(activityName) || 0) + 1);
+
+    const stageName = r.activity?.stage?.title || "Độc lập (Không có chặng)";
+    stageMap.set(stageName, (stageMap.get(stageName) || 0) + 1);
+
+    const programName = r.activity?.stage?.program?.title || "Độc lập (Không có CT)";
+    programMap.set(programName, (programMap.get(programName) || 0) + 1);
+  });
+
+  const chartData: ChartData = {
+    unitStats: Array.from(unitMap.entries()).map(([name, count]) => ({ name, count })),
+    activityStats: Array.from(activityMap.entries()).map(([name, count]) => ({ name, count })),
+    stageStats: Array.from(stageMap.entries()).map(([name, count]) => ({ name, count })),
+    programStats: Array.from(programMap.entries()).map(([name, count]) => ({ name, count })),
+  };
 
   return (
     <div className="space-y-6">
@@ -56,6 +91,8 @@ export default async function AdminReportsPage({
           <ExportExcelButton endpoint="/api/export/reports" filename="Danh_sach_Bao_cao" />
         </div>
       </div>
+
+      <ReportCharts data={chartData} />
 
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
         <AdminSearchFilter placeholder="Tìm theo người đăng, nội dung, hoặc hoạt động..." />
