@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     // Google Drive URL to view image directly
-    const imageUrl = `https://drive.google.com/uc?id=${uploadRes.fileId}&export=view`;
+    const imageUrl = `https://drive.google.com/thumbnail?id=${uploadRes.fileId}&sz=w400`;
 
     // Update user profile
     await prisma.user.update({
