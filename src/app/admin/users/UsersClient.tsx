@@ -19,6 +19,7 @@ type UserData = {
   studentId: string | null;
   unitId: string | null;
   classId: string | null;
+  image?: string | null;
   unit?: { name: string } | null;
   class?: { name: string } | null;
   role: "USER" | "ADMIN";
